@@ -1,14 +1,13 @@
 SUBROUTINE test ()
   INTEGER n                     ! indice per le immagini
+  INTEGER ( kind = 4 ) :: file_unit
   CHARACTER ( len=1024 ) :: filename
   CHARACTER ( len=1024 ) :: format_string
-  INTEGER ( kind = 4 ) file_unit
-  ! INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION ( :, : ) :: g
 
-  INTEGER lvec                             ! lunghezza del vettore v
-  INTEGER, DIMENSION (:), ALLOCATABLE :: vec   ! Dichiaro il vettore v
+  INTEGER :: row, col = 10                    ! righe e colonne di A
+  INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION ( :, : ) :: g ! matrice A
 
-  DO n=1,10
+  DO n=1,col
      IF (n < 10) then
         format_string = "(A4,I1,A4)"
      else
@@ -30,21 +29,28 @@ SUBROUTINE test ()
 
      CALL pgma_read_header ( file_unit, nrow, ncol, maxg )
 
-     WRITE ( *, '(a)' ) ' '
-     WRITE ( *, '(a,a8)' ) '  PGMA_READ_HEADER read the header.', filename
-     WRITE ( *, '(a)' ) ' '
-     WRITE ( *, '(a,i8)' ) '  Number of rows of data =    ', nrow
-     WRITE ( *, '(a,i8)' ) '  Number of columns of data = ', ncol
-     WRITE ( *, '(a,i8)' ) '  Maximum G value =           ', maxg
+     ! WRITE ( *, '(a)' ) ' '
+     ! WRITE ( *, '(a,a12)' ) '  PGMA_READ_HEADER read the header.', filename
+     ! WRITE ( *, '(a)' ) ' '
+     ! WRITE ( *, '(a,i8)' ) '  Number of rows of data =    ', nrow
+     ! WRITE ( *, '(a,i8)' ) '  Number of columns of data = ', ncol
+     ! WRITE ( *, '(a,i8)' ) '  Maximum G value =           ', maxg
 
   END DO
 
-  lvec = row_num * col_num
-  ALLOCATE ( vec(lvec) )
+  row = row_num * col_num
+  ALLOCATE ( g(row,col) )
+
+  CALL read_data ( file_unit, row, col, g )
+
+  DEALLOCATE ( g )
+
+  RETURN
 
 END SUBROUTINE test
 
-SUBROUTINE read_data_in_vector ( file_in_unit, row_num, col_num, v )
+
+SUBROUTINE read_data ( file_in_unit, row_num, col_num, A )
 
 !********************************************************************
 !
@@ -56,59 +62,40 @@ SUBROUTINE read_data_in_vector ( file_in_unit, row_num, col_num, v )
 
   IMPLICIT NONE
 
-  integer  col_num
-  integer  row_num
+  INTEGER  col_num
+  INTEGER  row_num
 
-  logical done
-  integer ( kind = 4 ) file_in_unit
-  ! integer ( kind = 4 ) g(row_num,col_num)
-  integer ( kind = 4 ) i
-  integer ( kind = 4 ) ierror
-  ! integer ( kind = 4 ) j
-  character ( len = 80 ) string
-
-
-  INTEGER leng_vector
-  INTEGER, DIMENSION (:), ALLOCATABLE :: v   ! Dichiaro il vettore v
-
-  ! leng_vector = row_num * col_num
-  ! ALLOCATE ( v(leng_vector) )
+  LOGICAL done
+  INTEGER ( kind = 4 ) file_in_unit
+  INTEGER ( kind = 4 ) A(row_num,col_num)
+  INTEGER ( kind = 4 ) i
+  INTEGER ( kind = 4 ) ierror
+  INTEGER ( kind = 4 ) j
+  CHARACTER ( len = 80 ) string
 
   ierror = 0
-  done = .true.
+  done = .TRUE.
   string = ' '
 
-  DO i = 1, leng_vector
-     call getint ( done, ierror, file_in_unit, v(i), string )
+  DO i = 1, row_num
+     DO j = 1, col_num
 
-     IF ( ierror /= 0 ) then
-        close ( unit = file_in_unit )
-        write ( *, '(a)' ) ' '
-        write ( *, '(a)' ) 'PGMA_READ_DATA - Fatal error!'
-        write ( *, '(a)' ) '  Problem reading G data.'
-        stop
-     END IF
+        CALL getint ( done, ierror, file_in_unit, A(i,j), string )
 
+        IF ( ierror /= 0 ) THEN
+           CLOSE ( unit = file_in_unit )
+           WRITE ( *, '(a)' ) ' '
+           WRITE ( *, '(a)' ) 'PGMA_READ_DATA - Fatal error!'
+           WRITE ( *, '(a)' ) '  Problem reading G data.'
+           ! STOP
+        END IF
+
+     END DO
   END DO
 
-  ! do i = 1, row_num
-  !   do j = 1, col_num
-
-  !     call getint ( done, ierror, file_in_unit, g(i,j), string )
-
-  !     if ( ierror /= 0 ) then
-  !       close ( unit = file_in_unit )
-  !       write ( *, '(a)' ) ' '
-  !       write ( *, '(a)' ) 'PGMA_READ_DATA - Fatal error!'
-  !       write ( *, '(a)' ) '  Problem reading G data.'
-  !       stop
-  !     end if
-
-  !   end do
-  ! end do
-
   RETURN
-END SUBROUTINE read_data_in_vector
+
+END SUBROUTINE read_data
 
 
 SUBROUTINE createA ()
