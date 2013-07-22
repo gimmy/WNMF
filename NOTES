@@ -1,0 +1,37 @@
+!! PGMA_READ_DATA reads the data in an ASCII PGM file.
+!
+!  Licensing: GNU LGPL license. 
+!  Author:  John Burkardt
+!
+!  Parameters:
+!
+!    Input, integer ( kind = 4 ) FILE_IN_UNIT, the unit number of the file.
+!
+!    Input, integer ( kind = 4 ) ROW_NUM, COL_NUM, the number of rows and 
+!    columns of data.
+!
+!    Output, integer ( kind = 4 ) G(ROW_NUM,COL_NUM), the gray data.
+
+
+!! PGMA_READ_HEADER reads the header of an ASCII PGM file.
+!
+!  Licensing: GNU LGPL license. 
+!  Author: John Burkardt
+!
+!  Parameters:
+!
+!    Input, integer ( kind = 4 ) FILE_IN_UNIT, the unit number of the file.
+!
+!    Output, integer ( kind = 4 ) ROW_NUM, COL_NUM, the number of rows and 
+!    columns of data.
+!
+!    Output, integer ( kind = 4 ) G_MAX, the maximum gray value.
+
+PGMA_TO_PGMB Library (C++):
+http://people.sc.fsu.edu/~jburkardt/cpp_src/pgma_to_pgmb/pgma_to_pgmb.html
+
+PGMA_IO Library (Fortran90):
+http://people.sc.fsu.edu/~jburkardt/f_src/pgma_io/pgma_io.html
+
+Cambridge ORL face database:
+http://www.cl.cam.ac.uk/research/dtg/attarchive/facedatabase.html
