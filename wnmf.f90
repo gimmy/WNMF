@@ -2,8 +2,8 @@ PROGRAM wnmf
 
   IMPLICIT NONE
 
-  ! CALL read ( )
-  CALL test ()
+  CALL read ( 'img_ascii.pgm' )
+  ! CALL createA ()
 
 
 !  Terminate.

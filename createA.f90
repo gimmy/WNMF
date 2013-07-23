@@ -1,10 +1,11 @@
-SUBROUTINE test ()
+SUBROUTINE createA ()
+  ! Crea la matrice A le cui colonne sono i vector face
   INTEGER n                     ! indice per le immagini
   INTEGER ( kind = 4 ) :: file_unit
   CHARACTER ( len=1024 ) :: filename
   CHARACTER ( len=1024 ) :: format_string
 
-  INTEGER :: row, col = 10                    ! righe e colonne di A
+  INTEGER :: row, col = 10                    ! righe e colonne di A (numero di immagini)
   INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION ( :, : ) :: g ! matrice A
 
   DO n=1,col
@@ -47,7 +48,7 @@ SUBROUTINE test ()
 
   RETURN
 
-END SUBROUTINE test
+END SUBROUTINE createA
 
 
 SUBROUTINE read_data ( file_in_unit, row_num, col_num, A )
@@ -96,29 +97,3 @@ SUBROUTINE read_data ( file_in_unit, row_num, col_num, A )
   RETURN
 
 END SUBROUTINE read_data
-
-
-SUBROUTINE createA ()
-  ! Crea la matrice A
-  IMPLICIT NONE
-
-  INTEGER n                     ! indice per le immagini
-
-  CHARACTER ( len = 80 ) :: file_name = 'img_ascii.pgm'
-  INTEGER ( kind = 4 ) file_unit
-  INTEGER ( kind = 4 ), allocatable, dimension ( :, : ) :: g
-  INTEGER ( kind = 4 ) i
-  INTEGER ( kind = 4 ) ierror
-  INTEGER ( kind = 4 ) ios
-  INTEGER ( kind = 4 ) j
-  INTEGER ( kind = 4 ) k
-  INTEGER ( kind = 4 ) maxg
-  INTEGER ( kind = 4 ) ncol
-  INTEGER ( kind = 4 ) nrow
-
-  WRITE ( *, '(a)' ) ' '
-  WRITE ( *, '(a)' ) '  Apro i file...'
-
-
-
-END SUBROUTINE createA
