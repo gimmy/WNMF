@@ -45,7 +45,7 @@ subroutine read ( file_name )
   WRITE ( *, '(a)' ) ' '
   WRITE ( *, '(a)' ) '  PGMA_READ_DATA read the data.'
 
-  CALL factor (g,nrow,ncol,50)
+  CALL factor (g,nrow,ncol,30)
   WRITE ( *, '(a)' ) ' '
   WRITE ( *, '(a)' ) '  Fattorizzazione fatta.'
 
