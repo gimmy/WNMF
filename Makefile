@@ -7,6 +7,11 @@ OBJECTS= $(SOURCE:.f90=.o)
 EXECUTABLE=PGM
 TMPFILES= *~ a.out *.o
 
+CC_CONVERT= g++
+CONVERT_PATH=convert/
+SOURCE_CONVERT=pgmb_to_pgma.cpp
+CONVERT=bin2ascii
+
 # output color:
 #COLOR="\033["
 WHITE="\033[38;1m"
@@ -31,7 +36,16 @@ $(EXECUTABLE): $(OBJECTS)
 clean:
 	@echo -e $(WORK) $(WHITE)"Clean useless files"$(CLOSE)
 	@rm -f $(TMPFILES) $(OBJECTS) $(EXECUTABLE)
+cclean:
+	@echo -e $(WORK) $(WHITE)"Clean all useless files"$(CLOSE)
+	@rm -f $(CONVERT) $(TMPFILES) $(OBJECTS) $(EXECUTABLE)
 
 run: $(EXECUTABLE)
 	@echo -e $(INFO) $(WHITE)"Run" $< $(CLOSE)
 	@./$<
+
+whole: $(CONVERT) $(EXECUTABLE)
+	@echo -e $(INFO)$(CLOSE) $(WHITE)"Compiled"$(CLOSE)
+$(CONVERT): $(CONVERT_PATH)$(SOURCE_CONVERT)
+	@echo -en $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(CC_CONVERT) $< -o $@
+	@echo -e "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
