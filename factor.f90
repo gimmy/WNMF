@@ -4,9 +4,9 @@ SUBROUTINE factor (A, W, row, col, rank)
   INTEGER ( kind = 4 ) A(row,col)
   INTEGER rank
   INTEGER i, j, steps
-  INTEGER, parameter :: sigma = 30
+  ! INTEGER, parameter :: sigma = 30
   REAL (kind = 4) d
-  REAL, parameter :: eps = 1e-10, precision = 1e3 !1e-2
+  REAL, parameter :: eps = 1e-10, precision = 1e5
   REAL KLDiv, euclid
 
   ! Creo matrici random U e V
@@ -19,27 +19,18 @@ SUBROUTINE factor (A, W, row, col, rank)
   CALL RANDOM_NUMBER(U) ! put random numbers
   CALL RANDOM_NUMBER(V) 
 
-  ! Creo la matrice dei pesi e la matrice 
-  ! Epsilon per evitare la divisione per zero
+  ! Creo la matrice E per evitare la divisione per zero
   DO i = 1, row
      DO j = 1, col
-
-        d = (i-56.5)**2  + (j-46.5)**2 ! distanza^2 dal centro
-        W(i,j) = exp(-d/(sigma**2))
         E(i,j) = eps
-
      END DO
   END DO
 
   ! A*B is the Hadamard product
   ! A/B is the Hadamard division
 
-  ! AUX = (W*A)/(UV + E)
-  ! WRITE ( *,* ) '  AUX ha dimensione: ', SHAPE(AUX)
-  ! WRITE ( *,* ) '   tU ha dimensione: ', SHAPE(transpose(U))
-
   steps = 0
-  UV = MATMUL(U,V)
+  WRITE (*,*) 'Calcolo UV, inizio fattorizzazione...'
   DO
      steps = steps+1
 
@@ -52,15 +43,17 @@ SUBROUTINE factor (A, W, row, col, rank)
 
      UV = MATMUL(U,V)
 
-     V = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
-     CALL KLdivergence(A, UV, W, row, col, KLDiv)
-     IF ( KLDiv < precision ) exit
-     ! WRITE (*,*) 'KL Div [V update]: ', KLDiv
-
-     ! U = ( U/MATMUL(W,transpose(V)) ) * ( MATMUL((W*A)/(UV + E),transpose(V)) )
+     ! Aggiorno matrice V
+     ! V = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
      ! CALL KLdivergence(A, UV, W, row, col, KLDiv)
      ! IF ( KLDiv < precision ) exit
-     ! WRITE (*,*) 'KL Div [U update]: ', KLDiv
+     ! WRITE (*,*) 'KL Div [V update]: ', KLDiv
+
+     ! Aggiorno matrice U
+     U = ( U/MATMUL(W,transpose(V)) ) * ( MATMUL((W*A)/(UV + E),transpose(V)) )
+     CALL KLdivergence(A, UV, W, row, col, KLDiv)
+     IF ( KLDiv < precision ) exit
+     WRITE (*,*) 'KL Div [U update]: ', KLDiv
 
      ! CALL Euclidiv(A, UV, row, col, euclid)
      ! IF ( euclid < precision ) exit
@@ -75,7 +68,7 @@ END SUBROUTINE factor
 
 SUBROUTINE KLdivergence (A, UV, W, row, col, KLDiv)
   ! Calcola la divergenza di Kullback-Leibler pesata
-  IMPLICIT NONE
+  ! IMPLICIT NONE
   INTEGER row, col
   INTEGER, DIMENSION (row,col) :: A
   REAL, DIMENSION (row,col) :: UV, W, AUX
@@ -89,6 +82,14 @@ SUBROUTINE KLdivergence (A, UV, W, row, col, KLDiv)
      END DO
   END DO
 
+  ! write ( *, '(a)' ) '  Sample data of W:'
+  ! write ( *, '(a)' ) ' '
+  ! do k = 1, 10
+  !   ! i = ( ( 10 - k ) * 1 + ( k - 1 ) * nrow ) / ( 10 - 1 )
+  !   ! j = ( ( 10 - k ) * 1 + ( k - 1 ) * ncol ) / ( 10 - 1 )
+  !   write ( *, * ) k, W(k+1000,1)
+  ! end do
+
   AUX = W * ( A * AUX - A + UV )
 
   DO i = 1, row
@@ -100,7 +101,7 @@ SUBROUTINE KLdivergence (A, UV, W, row, col, KLDiv)
      END DO
   END DO
 
-  ! WRITE (*,*) 'KL Divergence =', KLDiv
+  ! WRITE (*,*) 'KL Divergence: ', KLDiv
   RETURN
 
 END SUBROUTINE KLdivergence

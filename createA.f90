@@ -15,11 +15,11 @@ SUBROUTINE createA ()
   INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: readPGM, A
   REAL ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: localW, W
   LOGICAL DO_localW
-
+  INTEGER, parameter :: sigma = 30
 
   ALLOCATE ( A(row,col) )
   ALLOCATE ( W(row,col) )
-  WRITE(*,*) 'Allocata matrice A e W: ', SHAPE(A)
+  ! WRITE(*,*) 'Allocata matrice A e W: ', SHAPE(A)
 
   DO_localW = .TRUE.
 
@@ -53,13 +53,13 @@ SUBROUTINE createA ()
 
      ! Lettura dati
      ALLOCATE ( readPGM(nrow,ncol) )
-     WRITE(*,*) 'Alloco matrice readPGM per lettura dati: ', SHAPE(readPGM)
+     ! WRITE(*,*) 'Alloco matrice readPGM per lettura dati: ', SHAPE(readPGM)
      CALL pgma_read_data ( file_unit, nrow, ncol, readPGM )
 
      IF ( DO_localW ) THEN
         ! Creo la matrice dei pesi
         ALLOCATE ( localW(nrow,ncol) )
-        WRITE(*,*) 'Alloco matrice locale dei pesi localW  : ', SHAPE(localW)
+        ! WRITE(*,*) 'Alloco matrice locale dei pesi localW  : ', SHAPE(localW)
         DO i = 1, nrow
            DO j = 1, ncol
               d = (i-56.5)**2  + (j-46.5)**2    ! distanza^2 dal centro
@@ -87,7 +87,10 @@ SUBROUTINE createA ()
   DEALLOCATE (localW)
   DO_localW = .TRUE.
 
-  WRITE(*,*) 'Scritti vector face in A e pesi in W'! , SHAPE(A)
+  WRITE(*,*) 'Scritti vector face in A e pesi in W', SHAPE(W)
+
+  CALL factor (A, W, row, col, 20)
+  WRITE(*,*) 'Fattorizzazione conclusa.'
 
   DEALLOCATE (A)
   DEALLOCATE (W)
