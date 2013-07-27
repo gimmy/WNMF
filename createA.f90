@@ -12,10 +12,16 @@ SUBROUTINE createA ()
   INTEGER ( kind = 4 ) nrow, ncol, maxg
 
   INTEGER :: row = 10304, col = 10                    ! righe e colonne (numero di immagini) di A
-  INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION ( :, : ) :: readPGM, A 
+  INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: readPGM, A
+  REAL ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: localW, W
+  LOGICAL DO_localW
+
 
   ALLOCATE ( A(row,col) )
-  WRITE(*,*) 'Allocata matrice A: ', SHAPE(A)
+  ALLOCATE ( W(row,col) )
+  WRITE(*,*) 'Allocata matrice A e W: ', SHAPE(A)
+
+  DO_localW = .TRUE.
 
   DO n=1,col
      IF (n < 10) then
@@ -47,14 +53,29 @@ SUBROUTINE createA ()
 
      ! Lettura dati
      ALLOCATE ( readPGM(nrow,ncol) )
-     ! WRITE(*,*) 'Alloco matrice readPGM per lettura dati: ', SHAPE(readPGM)
+     WRITE(*,*) 'Alloco matrice readPGM per lettura dati: ', SHAPE(readPGM)
      CALL pgma_read_data ( file_unit, nrow, ncol, readPGM )
 
-     ! Salvo g come vettore in A
+     IF ( DO_localW ) THEN
+        ! Creo la matrice dei pesi
+        ALLOCATE ( localW(nrow,ncol) )
+        WRITE(*,*) 'Alloco matrice locale dei pesi localW  : ', SHAPE(localW)
+        DO i = 1, nrow
+           DO j = 1, ncol
+              d = (i-56.5)**2  + (j-46.5)**2    ! distanza^2 dal centro
+              localW(i,j) = exp(-d/(sigma**2))
+           END DO
+        END DO
+        DO_localW = .FALSE.
+     ENDIF
+
+     ! Salvo readPGM come vettore colonna in A
+     ! e salvo localW come vettore colonna in W
      m = 1
      DO i = 1, nrow
         DO j = 1, ncol
            A(m,n) = readPGM(i,j)
+           W(m,n) = localW(i,j)
            m = m+1
         END DO
      END DO
@@ -63,9 +84,13 @@ SUBROUTINE createA ()
 
   END DO
 
-  WRITE(*,*) ' Scritti vector face in A'! , SHAPE(A)
+  DEALLOCATE (localW)
+  DO_localW = .TRUE.
+
+  WRITE(*,*) 'Scritti vector face in A e pesi in W'! , SHAPE(A)
 
   DEALLOCATE (A)
+  DEALLOCATE (W)
 
   RETURN
 

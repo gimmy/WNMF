@@ -1,5 +1,5 @@
-SUBROUTINE factor (A, row, col, rank)
-  ! Fattorizzazione NonNegativa di A
+SUBROUTINE factor (A, W, row, col, rank)
+  ! Fattorizzazione NonNegativa pesata di A
   INTEGER row, col
   INTEGER ( kind = 4 ) A(row,col)
   INTEGER rank

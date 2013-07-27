@@ -1,6 +1,6 @@
 subroutine read ( file_name )
   ! Legge un file pgm (ascii) in input
-
+  ! - per test su singolo file
   IMPLICIT NONE
 
   CHARACTER ( len = 80 ) :: file_name  ! = 'img_ascii.pgm'
@@ -22,12 +22,12 @@ subroutine read ( file_name )
 
   OPEN ( unit = file_unit, file = file_name, status = 'old', iostat = ios )
 
-  if ( ios /= 0 ) then
-    write ( *, '(a)' ) ' '
-    write ( *, '(a)' ) 'TEST02 - Fatal error!'
-    write ( *, '(a)' ) '  Could not open the file.'
+  IF ( ios /= 0 ) THEN
+    WRITE ( *, '(a)' ) ' '
+    WRITE ( *, '(a)' ) 'TEST02 - Fatal error!'
+    WRITE ( *, '(a)' ) '  Could not open the file.'
     return
-  end if
+  END IF
 
   CALL pgma_read_header ( file_unit, nrow, ncol, maxg )
 
@@ -45,12 +45,12 @@ subroutine read ( file_name )
   WRITE ( *, '(a)' ) ' '
   WRITE ( *, '(a)' ) '  PGMA_READ_DATA read the data.'
 
-  CALL factor (g,nrow,ncol,30)
-  WRITE ( *, '(a)' ) ' '
-  WRITE ( *, '(a)' ) '  Fattorizzazione fatta.'
+  ! CALL factor (g,nrow,ncol,30)
+  ! WRITE ( *, '(a)' ) ' '
+  ! WRITE ( *, '(a)' ) '  Fattorizzazione fatta.'
 
   DEALLOCATE ( g )
 
-  return
+  RETURN
 
 END SUBROUTINE read
