@@ -26,6 +26,6 @@ for root, subFolders, files in os.walk(rootdir):
             pgmPath = os.path.join(root, thing)
             pgmOut = os.path.join(dest_dir,str(i)+'.pgm')
             converti = "./bin2ascii "+pgmPath+" "+pgmOut
-            print converti
+            # print converti
             os.system(converti)
             i = i+1
