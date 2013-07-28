@@ -1,0 +1,31 @@
+#!/usr/bin/python2
+# Gianmarco Brocchi
+
+'''
+Search for PGM file in a directory 
+and convert it in ascii in img directory
+Use ./generate_pgm input_dir dest_dir
+
+'''
+
+import os, sys
+
+try:
+    rootdir = sys.argv[1]
+    dest_dir = sys.argv[2]
+except:
+    print "\t Use ./generate_pgm input_dir dest_dir"
+    sys.exit()
+
+i = 1
+for root, subFolders, files in os.walk(rootdir):
+    for thing in files:
+        # controllo sia un pgm
+        name,ext = os.path.splitext(thing)
+        if ext in ['.pgm']:
+            pgmPath = os.path.join(root, thing)
+            pgmOut = os.path.join(dest_dir,str(i)+'.pgm')
+            converti = "./bin2ascii "+pgmPath+" "+pgmOut
+            print converti
+            os.system(converti)
+            i = i+1
