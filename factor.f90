@@ -45,13 +45,13 @@ SUBROUTINE factor (A, W, row, col, rank)
 
      ! Aggiorno matrice V
      ! V = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
-     ! CALL KLdivergence(A, UV, W, row, col, KLDiv)
+     ! CALL KLdivergence(A, UV, W, row, col, KLDiv,eps)
      ! IF ( KLDiv < precision ) exit
      ! WRITE (*,*) 'KL Div [V update]: ', KLDiv
 
      ! Aggiorno matrice U
      U = ( U/MATMUL(W,transpose(V)) ) * ( MATMUL((W*A)/(UV + E),transpose(V)) )
-     CALL KLdivergence(A, UV, W, row, col, KLDiv)
+     CALL KLdivergence(A, UV, W, row, col, KLDiv, eps)
      IF ( KLDiv < precision ) exit
      WRITE (*,*) 'KL Div [U update]: ', KLDiv
 
@@ -60,25 +60,26 @@ SUBROUTINE factor (A, W, row, col, rank)
      
   END DO
 
+  WRITE (*,*) ''
   WRITE (*,*) 'Precision: ', precision 
   WRITE (*,*) 'KL Divergence: ', KLDiv
   WRITE(*,*) 'Passi: ', steps
 
 END SUBROUTINE factor
 
-SUBROUTINE KLdivergence (A, UV, W, row, col, KLDiv)
+SUBROUTINE KLdivergence (A, UV, W, row, col, KLDiv, eps)
   ! Calcola la divergenza di Kullback-Leibler pesata
   ! IMPLICIT NONE
   INTEGER row, col
   INTEGER, DIMENSION (row,col) :: A
   REAL, DIMENSION (row,col) :: UV, W, AUX
   INTEGER i, j
-  REAL KLDiv
+  REAL KLDiv, eps
 
   KLDiv = 0
   DO i = 1, row                 
      DO j = 1, col
-        AUX(i,j) = log( A(i,j)/UV(i,j) )
+        AUX(i,j) = log( A(i,j)/UV(i,j) + eps)
      END DO
   END DO
 
@@ -95,6 +96,10 @@ SUBROUTINE KLdivergence (A, UV, W, row, col, KLDiv)
   DO i = 1, row
      DO j = 1, col
         KLDiv = KLDiv + AUX(i,j)
+        IF (isnan( KLDiv )) THEN
+           WRITE(*,'(A,I4,A,I3,A,F5.3)') 'i:',i,' j:',j,'  KLDiv is ',KLDiv
+           STOP '"KLDiv is NaN"'
+        END IF
         IF ( KLDiv < 0 ) THEN
            WRITE (*,*) 'KL sotto zero: ', KLDiv
         END IF

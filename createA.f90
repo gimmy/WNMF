@@ -11,7 +11,8 @@ SUBROUTINE createA ()
   INTEGER ( kind = 4 ) ios
   INTEGER ( kind = 4 ) nrow, ncol, maxg
 
-  INTEGER :: row = 10304, col = 10                    ! righe e colonne (numero di immagini) di A
+  ! righe e colonne (numero di immagini) di A
+  INTEGER :: row = 10304, col = 10
   INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: readPGM, A
   REAL ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: localW, W
   LOGICAL DO_localW
@@ -19,18 +20,22 @@ SUBROUTINE createA ()
 
   ALLOCATE ( A(row,col) )
   ALLOCATE ( W(row,col) )
-  ! WRITE(*,*) 'Allocata matrice A e W: ', SHAPE(A)
+  WRITE(*,*) 'Allocata matrice A e W: ', SHAPE(A)
 
   DO_localW = .TRUE.
 
   DO n=1,col
      IF (n < 10) then
-        format_string = "(A4,I1,A4)"
+        format_string = "(A6,I1,A4)"
      else
-        format_string = "(A4,I2,A4)"
+        IF (n < 100) then
+           format_string = "(A6,I2,A4)"
+        else
+           format_string = "(A6,I3,A4)"
+        ENDIF
      ENDIF
      
-     WRITE (filename,format_string) "img/",n,".pgm"
+     WRITE (filename,format_string) "faces/",n,".pgm"
      ! PRINT *, trim(filename)
 
      CALL get_unit ( file_unit )
@@ -38,8 +43,8 @@ SUBROUTINE createA ()
      OPEN ( UNIT=file_unit, FILE=filename, STATUS='old', IOSTAT=ios )
      IF ( ios /= 0 ) THEN
         WRITE ( *, '(a)' ) ' '
-        WRITE ( *, '(a)' ) 'TEST - Fatal error!'
-        WRITE ( *, '(a)' ) '  Could not open the file.'
+        WRITE ( *, '(a)' ) 'Fatal error!'
+        WRITE ( *, * ) '  Could not open the file. ', filename
         RETURN
      ENDIF
 
@@ -59,7 +64,7 @@ SUBROUTINE createA ()
      IF ( DO_localW ) THEN
         ! Creo la matrice dei pesi
         ALLOCATE ( localW(nrow,ncol) )
-        ! WRITE(*,*) 'Alloco matrice locale dei pesi localW  : ', SHAPE(localW)
+        ! WRITE(*,*) 'Alloco matrice locale dei pesi localW:', SHAPE(localW)
         DO i = 1, nrow
            DO j = 1, ncol
               d = (i-56.5)**2  + (j-46.5)**2    ! distanza^2 dal centro
@@ -89,7 +94,7 @@ SUBROUTINE createA ()
 
   WRITE(*,*) 'Scritti vector face in A e pesi in W', SHAPE(W)
 
-  CALL factor (A, W, row, col, 20)
+  CALL factor (A, W, row, col, 49)
   WRITE(*,*) 'Fattorizzazione conclusa.'
 
   DEALLOCATE (A)
