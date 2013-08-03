@@ -1,6 +1,10 @@
-SUBROUTINE createA ()
+SUBROUTINE createAW (A, W, row, col)
   ! Crea la matrice A le cui colonne sono i vector face
   ! le immagini sono 92x112 = 10304
+  INTEGER :: row, col
+  INTEGER, dimension (row,col) :: A
+  REAL, dimension (row,col) :: W
+
   INTEGER n, m                     ! indice per le immagini
   INTEGER ( kind = 4 ) :: file_unit
   CHARACTER ( len=1024 ) :: filename
@@ -11,16 +15,15 @@ SUBROUTINE createA ()
   INTEGER ( kind = 4 ) ios
   INTEGER ( kind = 4 ) nrow, ncol, maxg
 
-  ! righe e colonne (numero di immagini) di A
-  INTEGER :: row = 10304, col = 10
-  INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: readPGM, A
-  REAL ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: localW, W
+
+  INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: readPGM
+  REAL ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: localW
   LOGICAL DO_localW
   INTEGER, parameter :: sigma = 30
 
-  ALLOCATE ( A(row,col) )
-  ALLOCATE ( W(row,col) )
-  WRITE(*,*) 'Allocata matrice A e W: ', SHAPE(A)
+  ! ALLOCATE ( A(row,col) )
+  ! ALLOCATE ( W(row,col) )
+  ! WRITE(*,*) 'Allocata matrice A e W: ', SHAPE(A)
 
   DO_localW = .TRUE.
 
@@ -58,7 +61,7 @@ SUBROUTINE createA ()
 
      ! Lettura dati
      ALLOCATE ( readPGM(nrow,ncol) )
-     ! WRITE(*,*) 'Alloco matrice readPGM per lettura dati: ', SHAPE(readPGM)
+     ! WRITE(*,*) 'Alloco matrice readPGM per lettura dati:',SHAPE(readPGM)
      CALL pgma_read_data ( file_unit, nrow, ncol, readPGM )
 
      IF ( DO_localW ) THEN
@@ -94,12 +97,6 @@ SUBROUTINE createA ()
 
   WRITE(*,*) 'Scritti vector face in A e pesi in W', SHAPE(W)
 
-  CALL factor (A, W, row, col, 49)
-  WRITE(*,*) 'Fattorizzazione conclusa.'
-
-  DEALLOCATE (A)
-  DEALLOCATE (W)
-
   RETURN
 
-END SUBROUTINE createA
+END SUBROUTINE createAW
