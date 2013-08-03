@@ -95,8 +95,8 @@ SUBROUTINE createAW (A, W, row, col)
   DEALLOCATE (localW)
   DO_localW = .TRUE.
 
-  WRITE(*,*) 'Scritti vector face in A e pesi in W', SHAPE(W)
+  WRITE(*,*) 'Scritti vector face in A e pesi in W' !, SHAPE(W)
 
-  RETURN
+  ! RETURN
 
 END SUBROUTINE createAW
