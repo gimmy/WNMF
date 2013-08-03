@@ -15,6 +15,8 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
   REAL, parameter :: eps = 1e-5, precision = 1e4
   REAL (kind = 4) KLdivergence, KL, Euclidea, euclid
 
+  REAL norm_infty, normU, normV
+
   REAL, DIMENSION(row,col) :: E, AUX
   LOGICAL HELP
 
@@ -88,7 +90,13 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
      ! ENDIF
 
      ! euclid = Euclidea(A, UV, row, col)
-     ! IF ( euclid < precision ) exit
+
+
+     normU = norm_infty(U, row, rank)
+     normV = norm_infty(V, rank, col)
+     WRITE(*,*) 'Norma infinito U: ', normU
+     WRITE(*,*) 'Norma infinito V: ', normV
+
   END DO
 
   WRITE(*,*) ''
@@ -98,6 +106,7 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
 
 END SUBROUTINE factor
 
+
 function KLdivergence (A, UV, W, row, col, eps) result(KLDiv)
   ! Calcola la divergenza di Kullback-Leibler pesata
   ! IMPLICIT NONE
@@ -105,7 +114,9 @@ function KLdivergence (A, UV, W, row, col, eps) result(KLDiv)
   INTEGER, DIMENSION (row,col) :: A
   REAL, DIMENSION (row,col) :: UV, W, DIV
   INTEGER i, j
-  REAL KLDiv, eps
+  REAL KLDiv, eps, normU, normV, norm
+
+  ! norm = normU*normV
 
   KLDiv = 0
   DO i = 1, row                 
@@ -171,14 +182,24 @@ function Euclidea(A, UV, row, col) result(euclid)
 
 END function Euclidea
 
-  ! write ( *, '(a)' ) '  Sample data of A real:'
-  ! write ( *, '(a)' ) ' '
-  ! do k = 1, 10
-  !    ! i = ( ( 10 - k ) * 1 + ( k - 1 ) * nrow ) / ( 10 - 1 )
-  !    ! j = ( ( 10 - k ) * 1 + ( k - 1 ) * ncol ) / ( 10 - 1 )
-  !    write ( *, * ) k, A(k+10,1)
-  ! end do
+function norm_infty (B, row, col) result(norm)
+  ! Calcola la norma infinito di B
+  IMPLICIT NONE
+  INTEGER row, col
+  REAL, DIMENSION (row,col) :: B
+  REAL, DIMENSION (col) :: v
+  INTEGER i
+  REAL aux, norm
 
-  ! WRITE(*,*) ''
-  ! WRITE(*,'(A,I4,A,I3,A,I5)') 'i:',1,' j:',1,'  A(1,1): ', A(1,1)
-  ! WRITE(*,'(A,I4,A,I3,A,F5.3)') 'i:',1,' j:',1,'  UV(1,1): ', UV(1,1)
+  v = B(1,:)
+  norm = sum( v )
+
+  DO i = 1, row
+     v = B(i,:)
+     aux = sum( v )
+     IF ( aux > norm ) THEN
+        norm = aux
+     ENDIF
+  END DO
+
+END function norm_infty
