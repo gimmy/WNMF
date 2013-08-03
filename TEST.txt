@@ -1,0 +1,38 @@
+100 immagini, rango 49, 11 iterazioni
+
+[V random] -------------------
+Aggiorno solo U: 
+KL Div [U update]:    1703488.25
+
+Aggiorno U e V separatamente:
+KL Div [V update]:    1423531.50    
+KL Div [U update]:    315569984.    
+KL Div [UV update]:   1413528.00 
+
+Aggiorno U con V aggiornata:
+KL Div [V update]:    1421898.50    
+KL Div [UV update]:   1411529.38   
+
+[V calcolata] ----------------
+Aggiorno solo U: 
+KL Div [U update]:    15647870.0
+
+Aggiorno U e V separatamente:
+KL Div [V update]:    119083648.    
+KL Div [U update]:    1331482.00    
+KL Div [UV update]:   1.97095130E+09
+
+Aggiorno U con V aggiornata:
+KL Div [V update]:    1314828.75    
+KL Div [UV update]:   1306231.00   
+
+--------------------------------
+400 immagini, rango 49, 11 iterazioni
+
+KL Div [V update]:    5583431.50    
+KL Div [UV update]:   5575082.50
+
+Scambiando l'aggiornamento di U e V:
+KL Div [U update]:    5592135.00    
+KL Div [UV update]:   5586160.00
+
