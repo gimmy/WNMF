@@ -38,23 +38,23 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
 
   WRITE (*,*) 'Inizio fattorizzazione...'
   DO steps = 1, iter
-     ! Aggiorno U
-     U = ( U/MATMUL(W,transpose(V)) ) * ( MATMUL((W*A)/(UV + E),transpose(V)) )
-
-     IF ( steps == iter ) THEN
-        UV = MATMUL(U,V)
-        KL = KLdivergence(A, UV, W, row, col, eps)
-        WRITE (*,*) 'KL Div [U update]: ', KL
-     ENDIF
-
      ! Aggiorno matrice V
      V = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
      ! Vaux = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
 
+     IF ( steps == iter ) THEN
+        UV = MATMUL(U,V)
+        KL = KLdivergence(A, UV, W, row, col, eps)
+        WRITE (*,*) 'KL Div [V update]: ', KL
+     ENDIF
+
+     ! Aggiorno U
+     U = ( U/MATMUL(W,transpose(V)) ) * ( MATMUL((W*A)/(UV + E),transpose(V)) )
+
      ! IF ( steps == iter ) THEN
      !    UV = MATMUL(U,V)
      !    KL = KLdivergence(A, UV, W, row, col, eps)
-     !    WRITE (*,*) 'KL Div [V update]: ', KL
+     !    WRITE (*,*) 'KL Div [U update]: ', KL
      ! ENDIF
 
      ! ! Check Non NaN in U
