@@ -1,6 +1,6 @@
 CC= gfortran
 # CFLAGS= -c
-CFLAGS= -c -O0 -g	# for debug
+CFLAGS= -c -O0 -g -fbounds-check	# for debug
 LDFLAGS= -llapack
 SOURCE=wnmf.f90 pgma_io.f90 read.f90 createA.f90 createV.f90 factor.f90 inverse.f90 print.f90
 OBJECTS= $(SOURCE:.f90=.o)

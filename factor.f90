@@ -1,4 +1,4 @@
-SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
+SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
   ! Fattorizzazione NonNegativa pesata di A
   ! Fattorizza A in UV con matrice dei pesi W
 
@@ -9,15 +9,14 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
   INTEGER (kind = 4), DIMENSION(row,col) :: A
   REAL, DIMENSION(row,col) :: W, UV
   REAL, DIMENSION(row,rank) :: U
-  REAL, DIMENSION(rank,col) :: V, Vaux
+  REAL, DIMENSION(rank,col) :: V
 
-  INTEGER i, j, steps, iter
+  INTEGER i, j, steps, maxiter
   REAL, parameter :: eps = 1e-5, precision = 1e4
   REAL (kind = 4) KLdivergence, KL, Euclidea, euclid
 
   REAL norm_infty, maxUV
-
-  REAL, DIMENSION(row,col) :: E, AUX
+  REAL, DIMENSION(row,col) :: E
 
   ! Creo la matrice E per evitare la divisione per zero
   DO i = 1, row
@@ -27,20 +26,20 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
   END DO
 
   ! Tiro a caso U e calcolo V
-  CALL RANDOM_SEED
+  CALL RANDOM_SEED()
   CALL RANDOM_NUMBER(U)
   U = int(U*10)
   ! CALL RANDOM_NUMBER(V)
   ! V = int(V*10)
   CALL createV(A,U,V, row, rank, col)
-  ! V = int(V)
+  V = int(V)
 
   UV = MATMUL(U,V)
   WRITE(*,*) 'Calcolata UV'
   call checkUV(UV, row, col, maxUV)
 
   WRITE (*,*) 'Inizio fattorizzazione...'
-  DO steps = 1, iter
+  DO steps = 1, maxiter
      ! Aggiorno U
      WRITE (*,'(A,I2,A)', advance='no') '[', steps, ' ] Aggiorno U '
      U = ( U/MATMUL(W,transpose(V)) ) * ( MATMUL((W*A)/(UV + E),transpose(V)) )
@@ -57,7 +56,7 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
 
      UV = MATMUL(U,V)
      call checkUV(UV, row, col, maxUV)
-     ! IF ( steps == iter ) THEN
+     ! IF ( steps == maxiter ) THEN
      !    UV = MATMUL(U,V)
      !    KL = KLdivergence(A, UV, W, row, col, eps)
      !    WRITE (*,*) 'KL Div [U update]: ', KL
@@ -74,7 +73,7 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
      V = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
      ! Vaux = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
 
-     ! IF ( steps == iter ) THEN
+     ! IF ( steps == maxiter ) THEN
      !    UV = MATMUL(U,V)
      !    KL = KLdivergence(A, UV, W, row, col, eps)
      !    WRITE (*,*) 'KL Div [U update]: ', KL
@@ -85,15 +84,14 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
      call checkUV(UV, row, col, maxUV)
 
      KL = KLdivergence(A, UV, W, row, col, eps)
-     IF ( KL < precision ) exit
-     ! IF ( steps == iter ) THEN
+     IF ( (KL < precision) .or. (maxUV <= 255) ) EXIT
+     ! IF ( steps == maxiter ) THEN
      !    WRITE (*,*) 'KL Div [UV update]: ', KL
      ! ENDIF
 
      ! WRITE(*,*) 'Ricalcolata UV'
 
      ! euclid = Euclidea(A, UV, row, col)
-
   END DO
  
   WRITE(*,*) 'Norma infinito U: ', norm_infty(U, row, rank)
