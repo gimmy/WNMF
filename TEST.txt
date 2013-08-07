@@ -15,6 +15,14 @@ KL Div [UV update]:   1411529.38
 
 KL [int U*10 e V*10]: 1410827.62
 
+Scambiando l'aggiornamento di U e V:
+KL Div [U update]:    1411378.75    
+KL Div [UV update]:   1407912.38
+
+--- 21 iterazioni [U con V aggiornata]-[V random]----
+KL Div [V update]:    1210803.62
+KL Div [UV update]:   1193464.50
+
 [V calcolata] ----------------
 Aggiorno solo U: 
 KL Div [U update]:    15647870.0
@@ -27,6 +35,14 @@ KL Div [UV update]:   1.97095130E+09
 Aggiorno U con V aggiornata:
 KL Div [V update]:    1314828.75    
 KL Div [UV update]:   1306231.00   
+
+Scambiando l'aggiornamento di U e V:
+KL Div [U update]:    1323329.12    
+KL Div [UV update]:   1317175.50 
+
+--- 21 iterazioni [U con V aggiornata]-[V calcolata]----
+KL Div [V update]:    1135022.00    
+KL Div [UV update]:   1126295.00
 
 --------------------------------
 400 immagini, rango 49, 11 iterazioni

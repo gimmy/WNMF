@@ -77,7 +77,7 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
      ! IF ( steps == iter ) THEN
      !    UV = MATMUL(U,V)
      !    KL = KLdivergence(A, UV, W, row, col, eps)
-     !    WRITE (*,*) 'KL Div [V update]: ', KL
+     !    WRITE (*,*) 'KL Div [U update]: ', KL
      ! ENDIF
 
      ! V = Vaux
