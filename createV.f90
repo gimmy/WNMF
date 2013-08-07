@@ -9,6 +9,7 @@ SUBROUTINE createV(A,U,V, row, rank, col)
   REAL, DIMENSION(rank,col) :: Va
   REAL, DIMENSION(rank,rank) :: Uk, invUk
   REAL, DIMENSION(rank) :: y
+  REAL maxV
 
   ! Salvo la sottomatrice U_k
   DO i = 1, rank
@@ -42,20 +43,24 @@ SUBROUTINE createV(A,U,V, row, rank, col)
   END DO
 
   ! Controllo NonNegatività di V
+  maxV = 0
   DO i = 1, rank
      DO j = 1, col
         IF ( V(i,j) < 0 ) THEN
            ! STOP 'trovato elemento < 0 in V'
            ! write(*,*) 'trovato elemento < 0 in V, lo metto a 0'
            V(i,j) = 0
-        ENDIF
-        IF ( V(i,j) > 0 ) THEN
+        ELSE
            ! STOP 'trovato elemento > 0 in V'
+           IF ( maxV < V(i,j) ) then
+              maxV = V(i,j)
+           ENDIF
            k = k+1
         ENDIF
      END DO
   END DO
 
   write(*,'(A,I5,A,I5)') 'Non distruggerò V per ',k,' elementi giusti su ',rank*col
+  write(*,*) 'V ha raggiunto quota ', maxV
 
 END SUBROUTINE createV

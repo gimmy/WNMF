@@ -15,10 +15,10 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
   REAL, parameter :: eps = 1e-5, precision = 1e4
   REAL (kind = 4) KLdivergence, KL, Euclidea, euclid
 
-  REAL norm_infty, normU, normV
+  REAL norm_infty, normU, normV, maxUV
 
   REAL, DIMENSION(row,col) :: E, AUX
-  LOGICAL HELP
+  LOGICAL HELP, toobig
 
   ! Creo la matrice E per evitare la divisione per zero
   DO i = 1, row
@@ -30,7 +30,9 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
   ! Tiro a caso U e calcolo V
   CALL RANDOM_SEED
   CALL RANDOM_NUMBER(U)
+  U = int(U*10)
   ! CALL RANDOM_NUMBER(V)
+  ! V = int(V*10)
   CALL createV(A,U,V, row, rank, col)
 
   UV = MATMUL(U,V)
@@ -47,6 +49,10 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
         WRITE (*,*) 'KL Div [U update]: ', KL
      ENDIF
 
+     ! Ricalcolo V
+     IF (( MOD(steps,3) == 0 ) .and. (steps < 7)) THEN
+        CALL createV(A,U,V, row, rank, col)
+     endif
      ! Aggiorno matrice V
      V = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
      ! Vaux = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
@@ -57,15 +63,15 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
      !    WRITE (*,*) 'KL Div [V update]: ', KL
      ! ENDIF
 
-     ! ! Check Non NaN in U
-     ! DO i = 1, row
-     !    DO j = 1, rank
-     !       IF (isnan( U(i,j) )) THEN
-     !          write(*,'(A,I3,A,I3)') 'i:',i,' j:',j
-     !          STOP "NaN in U"
-     !       ENDIF
-     !    END DO
-     ! END DO
+     ! Check Non NaN in U
+     DO i = 1, row
+        DO j = 1, rank
+           IF (isnan( U(i,j) )) THEN
+              write(*,'(A,I3,A,I3,A,I3)') 'i:',i,' j:',j, 'step:', steps
+              STOP "NaN in U"
+           ENDIF
+        END DO
+     END DO
 
      ! V = Vaux
      UV = MATMUL(U,V)
@@ -75,19 +81,30 @@ SUBROUTINE factor (A, W, row, col, rank, U, V, iter)
         WRITE (*,*) 'KL Div [UV update]: ', KL
      ENDIF
 
-     ! ! WRITE(*,*) 'Ricalcolata UV'
-     ! HELP = .FALSE.
-     ! ! Check Zero in UV
-     ! DO i = 1, row
-     !    DO j = 1, col
-     !       IF ( UV(i,j) == 0 ) THEN
-     !          HELP = .TRUE.
-     !       ENDIF
-     !    END DO
-     ! END DO
-     ! IF (HELP) THEN
-     !    STOP "Zero in UV!"
-     ! ENDIF
+     ! WRITE(*,*) 'Ricalcolata UV'
+     HELP = .FALSE.
+     toobig = .false.
+     ! Check Zero in UV
+     DO i = 1, row
+        DO j = 1, col
+           IF ( UV(i,j) == 0 ) THEN
+              HELP = .TRUE.
+           ENDIF
+           IF ( UV(i,j) > 255 ) THEN
+              TOOBIG = .true.
+              IF ( maxUV < UV(i,j) ) then
+                 maxUV = UV(i,j)
+              ENDIF
+           ENDIF
+        END DO
+     END DO
+     IF (HELP) THEN
+        STOP "Zero in UV!"
+     ENDIF
+     IF (TOOBIG) THEN
+        WRITE(*,*) "UV > 255 al passo ", steps
+        write(*,*) 'UV ha raggiunto quota ', maxUV
+     ENDIF
 
      ! euclid = Euclidea(A, UV, row, col)
 

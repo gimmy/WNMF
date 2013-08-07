@@ -13,6 +13,8 @@ Aggiorno U con V aggiornata:
 KL Div [V update]:    1421898.50    
 KL Div [UV update]:   1411529.38   
 
+KL [int U*10 e V*10]: 1410827.62
+
 [V calcolata] ----------------
 Aggiorno solo U: 
 KL Div [U update]:    15647870.0
@@ -29,6 +31,11 @@ KL Div [UV update]:   1306231.00
 --------------------------------
 400 immagini, rango 49, 11 iterazioni
 
+[cast to int U*10 e V*10]
+KL Div [U update]:    5806623.00    
+KL Div [UV update]:   5799138.50
+ 
+[V calcolata]
 KL Div [V update]:    5583431.50    
 KL Div [UV update]:   5575082.50
 

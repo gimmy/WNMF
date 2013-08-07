@@ -3,7 +3,7 @@ PROGRAM wnmf
   IMPLICIT NONE
 
   ! righe e colonne (numero di immagini) di A
-  INTEGER :: row = 10304, col = 100, rank = 20
+  INTEGER :: row = 10304, col = 100, rank = 49
   REAL (kind = 4), ALLOCATABLE, DIMENSION (:,:) :: W
   INTEGER (kind = 4), ALLOCATABLE, DIMENSION (:,:) :: A
   REAL, ALLOCATABLE, DIMENSION(:,:) :: U

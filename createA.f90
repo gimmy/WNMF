@@ -82,7 +82,7 @@ SUBROUTINE createAW (A, W, row, col)
      m = 1
      DO i = 1, nrow
         DO j = 1, ncol
-           A(m,n) = readPGM(i,j)
+           A(m,n) = 255 - readPGM(i,j) ! salvo come negativi
            W(m,n) = localW(i,j)
            m = m+1
         END DO
