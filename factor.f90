@@ -15,7 +15,7 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
   REAL, parameter :: eps = 1e-5, precision = 1e4
   REAL (kind = 4) KLdivergence, KL, Euclidea, euclid
 
-  REAL norm_infty, maxUV
+  REAL norm_infty, maxUV, lastmaxUV
   REAL, DIMENSION(row,col) :: E
 
   ! Creo la matrice E per evitare la divisione per zero
@@ -58,6 +58,7 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
      KL = KLdivergence(A, UV, W, row, col, eps)
      WRITE (*,'(A,F11.2,A)', advance='no') ' (KL Div: ', KL, ')'
      call checkUV(UV, row, col, maxUV)
+	lastmaxUV = maxUV
      ! IF ( steps == maxiter ) THEN
      !    UV = MATMUL(U,V)
      !    KL = KLdivergence(A, UV, W, row, col, eps)
@@ -66,9 +67,10 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
 
 
      ! ! Ricalcolo V
-     ! IF (( MOD(steps,3) == 0 ) .and. (steps < 7)) THEN
-     !    CALL createV(A,U,V, row, rank, col)
-     ! endif
+     IF (( MOD(steps,2) == 0 ) .and. (steps < 10)) THEN
+        write(*,*) ''
+        CALL createV(A,U,V, row, rank, col)
+     endif
 
      ! Aggiorno matrice V
      ! WRITE (*,'(A,I2,A)', advance='no') '[', steps, ' ] Aggiorno V '
@@ -76,16 +78,15 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
      V = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
      ! Vaux = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
 
-     ! IF ( steps == maxiter ) THEN
-     !    UV = MATMUL(U,V)
-     !    KL = KLdivergence(A, UV, W, row, col, eps)
-     !    WRITE (*,*) 'KL Div [U update]: ', KL
-     ! ENDIF
-
      ! V = Vaux
      UV = MATMUL(U,V)
      call checkUV(UV, row, col, maxUV)
-
+!     IF ( ( lastmaxUV + 6 ) < maxUV ) THEN
+!        write(*,*), ''
+!        write(*,*) 'Riparto...'
+!        CALL createV(A,U,V, row, rank, col)
+!     ENDIF
+     
      KL = KLdivergence(A, UV, W, row, col, eps)
      WRITE (*,*) ' | KL Div: ', KL
      IF ( (KL < precision) .or. (maxUV <= 255) ) EXIT
@@ -96,7 +97,7 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
 
      ! euclid = Euclidea(A, UV, row, col)
   END DO
- 
+  
   WRITE(*,*) 'Norma infinito U: ', norm_infty(U, row, rank)
   WRITE(*,*) 'Norma infinito V: ', norm_infty(V, rank, col)
 
@@ -187,8 +188,6 @@ function KLdivergence (A, UV, W, row, col, eps) result(KLDiv)
         END IF
      END DO
   END DO
-
-  ! WRITE (*,*) 'KL Divergence: ', KLDiv
 
 END function KLdivergence
 

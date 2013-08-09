@@ -9,7 +9,7 @@ PROGRAM wnmf
 
   REAL, ALLOCATABLE, DIMENSION(:,:) :: UV
 
-  INTEGER, parameter :: maxiter = 12
+  INTEGER, parameter :: maxiter = 55
   INTEGER, parameter :: sigma = 30
   CHARACTER (len = 10) filename
   INTEGER ( kind = 4 ) ierror
@@ -30,7 +30,7 @@ PROGRAM wnmf
 
   ALLOCATE ( UV(row,col) )
 
-  WRITE(*,*) 'Allocata matrice U e V e UV.'
+  WRITE(*,*) 'Allocata matrice UV.'
 
   CALL factor (A, W, row, col, rank, UV, maxUV, maxiter)
   WRITE(*,*) 'Fattorizzazione conclusa.'

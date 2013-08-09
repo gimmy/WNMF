@@ -21,7 +21,7 @@ SUBROUTINE createV(A,U,V, row, rank, col)
   CALL FINDinv(Uk,invUk, rank, error)
   ! invUk = inv(Uk)
   ! CALL inv(Uk,invUk)
-  WRITE(*,*) 'inversa di Uk calcolata'
+  ! WRITE(*,*) 'inversa di Uk calcolata'
 
   ! ! Controllo NonNegatività di invUk
   ! DO i = 1, rank
@@ -44,6 +44,7 @@ SUBROUTINE createV(A,U,V, row, rank, col)
 
   ! Controllo NonNegatività di V
   maxV = 0
+  k = 0
   DO i = 1, rank
      DO j = 1, col
         IF ( V(i,j) < 0 ) THEN
@@ -51,7 +52,6 @@ SUBROUTINE createV(A,U,V, row, rank, col)
            ! write(*,*) 'trovato elemento < 0 in V, lo metto a 0'
            V(i,j) = 0
         ELSE
-           ! STOP 'trovato elemento > 0 in V'
            IF ( maxV < V(i,j) ) then
               maxV = V(i,j)
            ENDIF
@@ -60,7 +60,7 @@ SUBROUTINE createV(A,U,V, row, rank, col)
      END DO
   END DO
 
-  write(*,'(A,I5,A,I5)') 'Non distruggerò V per ',k,' elementi giusti su ',rank*col
-  write(*,*) 'V ha raggiunto quota ', maxV
+  write(*,'(A,I5,A,I5)', advance='no') ' in V ',k,' elementi > 0 su ',rank*col
+  write(*,'(A,F6.2)', advance='no') ' - max in V: ', maxV
 
 END SUBROUTINE createV
