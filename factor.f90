@@ -55,6 +55,8 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
      ! END DO
 
      UV = MATMUL(U,V)
+     KL = KLdivergence(A, UV, W, row, col, eps)
+     WRITE (*,'(A,F11.2,A)', advance='no') ' (KL Div: ', KL, ')'
      call checkUV(UV, row, col, maxUV)
      ! IF ( steps == maxiter ) THEN
      !    UV = MATMUL(U,V)
@@ -69,7 +71,8 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
      ! endif
 
      ! Aggiorno matrice V
-     WRITE (*,'(A,I2,A)', advance='no') '[', steps, ' ] Aggiorno V '
+     ! WRITE (*,'(A,I2,A)', advance='no') '[', steps, ' ] Aggiorno V '
+     WRITE (*,'(A)', advance='no') ' | Aggiorno V '
      V = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
      ! Vaux = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
 
@@ -84,12 +87,12 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
      call checkUV(UV, row, col, maxUV)
 
      KL = KLdivergence(A, UV, W, row, col, eps)
+     WRITE (*,*) ' | KL Div: ', KL
      IF ( (KL < precision) .or. (maxUV <= 255) ) EXIT
+
      ! IF ( steps == maxiter ) THEN
      !    WRITE (*,*) 'KL Div [UV update]: ', KL
      ! ENDIF
-
-     ! WRITE(*,*) 'Ricalcolata UV'
 
      ! euclid = Euclidea(A, UV, row, col)
   END DO
@@ -98,8 +101,8 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
   WRITE(*,*) 'Norma infinito V: ', norm_infty(V, rank, col)
 
   WRITE(*,*) ''
-  WRITE(*,*) 'Passi: ', steps
-  WRITE(*,*) 'Precisione: ', precision 
+  WRITE(*,'(A,I2)', advance='no') 'Passi: ', steps
+  WRITE(*,'(A,F10.2)', advance='no') ' Precisione: ', precision 
   WRITE(*,*) 'KL Divergence: ', KL
 
 END SUBROUTINE factor
@@ -132,9 +135,9 @@ SUBROUTINE checkUV(UV, row, col, maxUV)
      STOP "Zero in UV!"
   ENDIF
   IF (TOOBIG) THEN
-     WRITE(*,'(A,F8.2)') " max in UV: ", maxUV
+     WRITE(*,'(A,F8.2)', advance='no') " max in UV: ", maxUV
   ELSE
-     WRITE(*,*) "UV nella media, max:", maxUV
+     WRITE(*,'(A,F3.2)', advance='no') "UV nella media, max:", maxUV
   ENDIF
 
 ENDSUBROUTINE checkUV
