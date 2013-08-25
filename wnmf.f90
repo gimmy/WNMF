@@ -4,15 +4,15 @@ PROGRAM wnmf
 
   ! righe e colonne (numero di immagini) di A
   INTEGER :: row = 10304, col = 100, rank = 49
-  REAL (kind = 4), ALLOCATABLE, DIMENSION (:,:) :: W
+  REAL (kind = 8), ALLOCATABLE, DIMENSION (:,:) :: W
   INTEGER (kind = 4), ALLOCATABLE, DIMENSION (:,:) :: A
 
-  REAL, ALLOCATABLE, DIMENSION(:,:) :: UV
+  REAL (kind = 8), ALLOCATABLE, DIMENSION(:,:) :: UV
 
-  INTEGER, parameter :: maxiter = 55
+  INTEGER, parameter :: maxiter = 20
   INTEGER, parameter :: sigma = 30
   CHARACTER (len = 10) filename
-  INTEGER ( kind = 4 ) ierror
+  INTEGER (kind = 4) ierror
   REAL maxUV
 
   WRITE(*,'(A,I3,A,I2)') 'Immagini: ',col,', rango fattorizzazione: ',rank

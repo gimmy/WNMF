@@ -8,12 +8,12 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
   INTEGER row, col, rank
   INTEGER (kind = 4), DIMENSION(row,col) :: A
   REAL, DIMENSION(row,col) :: W, UV
-  REAL, DIMENSION(row,rank) :: U
-  REAL, DIMENSION(rank,col) :: V
+  REAL (kind = 8), DIMENSION(row,rank) :: U
+  REAL (kind = 8), DIMENSION(rank,col) :: V
 
   INTEGER i, j, steps, maxiter
-  REAL, parameter :: eps = 1e-5, precision = 1e4
-  REAL (kind = 4) KLdivergence, KL, Euclidea, euclid
+  DOUBLE PRECISION, parameter :: eps = 1e-7, precision = 1e4
+  REAL (kind = 8) KLdivergence, KL, Euclidea, euclid
 
   REAL norm_infty, maxUV, lastmaxUV
   REAL, DIMENSION(row,col) :: E
@@ -29,9 +29,9 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
   CALL RANDOM_SEED()
   CALL RANDOM_NUMBER(U)
   U = int(U*10)
-  ! CALL RANDOM_NUMBER(V)
-  ! V = int(V*10)
-  CALL createV(A,U,V, row, rank, col)
+  CALL RANDOM_NUMBER(V)
+  V = int(V*10)
+  ! CALL createV(A,U,V, row, rank, col)
   V = int(V)
 
   UV = MATMUL(U,V)
@@ -67,10 +67,10 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
 
 
      ! ! Ricalcolo V
-     IF (( MOD(steps,2) == 0 ) .and. (steps < 10)) THEN
-        write(*,*) ''
-        CALL createV(A,U,V, row, rank, col)
-     endif
+    !  IF (( MOD(steps,2) == 0 ) .and. (steps < 10)) THEN
+      !  write(*,*) ''
+       ! CALL createV(A,U,V, row, rank, col)
+     ! endif
 
      ! Aggiorno matrice V
      ! WRITE (*,'(A,I2,A)', advance='no') '[', steps, ' ] Aggiorno V '
@@ -148,9 +148,9 @@ function KLdivergence (A, UV, W, row, col, eps) result(KLDiv)
   ! IMPLICIT NONE
   INTEGER row, col
   INTEGER, DIMENSION (row,col) :: A
-  REAL, DIMENSION (row,col) :: UV, W, DIV
+  REAL (kind = 8), DIMENSION (row,col) :: UV, W, DIV
   INTEGER i, j
-  REAL KLDiv, eps, normU, normV, norm
+  REAL (kind = 8) KLDiv, eps, normU, normV, norm
 
   ! norm = normU*normV
 
