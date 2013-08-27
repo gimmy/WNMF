@@ -32,10 +32,10 @@ all: $(EXECUTABLE)
 	@echo $(INFO)$(CLOSE) $(WHITE)"Compiled"$(CLOSE)
 
 $(EXECUTABLE): $(OBJECTS)
-	@echo -n $(WORK) $(WHITE)"Linking..."$(CLOSE)"\t"; $(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	@echo $(WORK) $(WHITE)"Linking..."$(CLOSE)"\t"; $(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 %.o: %.f90
-	@echo -n $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(CC) $(CFLAGS) $< -o $@
+	@echo $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(CC) $(CFLAGS) $< -o $@
 clean:
 	@echo $(WORK) $(WHITE)"Clean useless files"$(CLOSE)
 	@rm -f $(TMPFILES) $(OBJECTS) $(EXECUTABLE)
@@ -52,18 +52,17 @@ whole: $(FACES) $(EXECUTABLE)
 	@echo $(INFO)$(CLOSE) $(WHITE)"Ready"$(CLOSE)
 
 $(CONVERT): $(CONVERT_PATH)$(SOURCE_CONVERT)
-	@echo -n $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(CC_CONVERT) $< -o $@
-	@echo "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
+	@echo $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(CC_CONVERT) $< -o $@
 
 faces: $(FACES)
 	@echo $(INFO)$(CLOSE) $(WHITE)"Faces are in "$(FACE_DIR)"/ directory" $(CLOSE)
 
 $(FACES): $(CONVERT)
 	@mkdir $(FACE_DIR) $(TMPDIR)
-	@echo -n $(INFO) $(WHITE)"Download Faces...\n"$(CLOSE); 
+	@echo $(INFO) $(WHITE)"Download Faces...\n"$(CLOSE); 
 	@curl -L# $(LINK) > $(TMPDIR)/att_faces.zip
-	@echo -n $(INFO) $(WHITE)"Extract Faces...\n"$(CLOSE); unzip -q $(TMPDIR)/att_faces.zip -d $(TMPDIR)
-	@echo -n $(WORK) $(WHITE)"Converting Faces " $(CLOSE); ./$(CONVERT_script) $(TMPDIR) $(FACE_DIR)
-	@echo -n $(INFO) $(WHITE)"Clean up" $(CLOSE); rm -r $(TMPDIR)
+	@echo $(INFO) $(WHITE)"Extract Faces...\n"$(CLOSE); unzip -q $(TMPDIR)/att_faces.zip -d $(TMPDIR)
+	@echo $(WORK) $(WHITE)"Converting Faces " $(CLOSE); ./$(CONVERT_script) $(TMPDIR) $(FACE_DIR)
+	@echo $(INFO) $(WHITE)"Clean up" $(CLOSE); rm -r $(TMPDIR)
 
 
