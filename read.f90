@@ -76,7 +76,7 @@ PROGRAM test
   CALL read ( filename, A, row, col, max )
 
   filename = 'A.pgm'
-  CALL simpleprint(A,row,col,max, filename)
+  CALL simpleprint(A,row,col, filename)
 
   ! Avanti tutta !
   
@@ -100,7 +100,7 @@ PROGRAM test
   WRITE ( *, '(a)' ) '  Fattorizzazione fatta.'
 
   filename = 'UV.pgm'
-  CALL simpleprint (UV,row,col,max,filename)
+  CALL simpleprint (UV,row,col,filename)
 
   ! Fattorizzazione senza pesi
   WRITE(*,*) 'Fattorizzazione non pesata'
@@ -118,7 +118,7 @@ PROGRAM test
   WRITE ( *, '(a)' ) '  Fattorizzazione fatta.'
 
   filename = 'UV_noW.pgm'
-  CALL simpleprint (UV,row,col,max,filename)
+  CALL simpleprint (UV,row,col,filename)
 
   DEALLOCATE ( A )
   DEALLOCATE ( UV )
