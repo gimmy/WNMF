@@ -1,0 +1,40 @@
+\documentclass[a4paper]{scrartcl}
+\usepackage[italian]{babel} 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb, amsthm}
+
+% \newcommand{\R}{\mathbb{R}}
+% \newcommand{\N}{\mathbb{N}}
+
+% \theoremstyle{plain}
+% \newtheorem{teorema}{Teorema}
+
+% \theoremstyle{plain}
+% \newtheorem{proposizione}{Proposizione}
+
+% \theoremstyle{definition}
+% \newtheorem{definizione}{Definizione}
+
+\author{Gianmarco Brocchi}
+\title{Weighted Nonnegative Matrix Factorization
+and Face Feature Extraction}
+\subtitle{Un'implementazione}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+Usando l'algoritmo suggerito nell'articolo di Vincent D. Blondel, Ngoc-Diep Ho e  Paul van Dooren si vuole applicare la WNMF ad una raccolta di immagini in modo da enfatizzare certe zone della matrice data. Verranno usate immagini di volti.
+
+\section{L'algoritmo}
+ 
+\section{I dati}
+L'algoritmo lavora su dati ottenuti dall'ORL face database\footnote{un insieme di volti dall'Olivetti Research Laboratory di Cambridge, UK}.
+Nello specifico si tratta di 400 volti (10 immagini di 40 soggetti). Le immagini sono in formato PGM\footnote{Portable Gray Map format}, ovvero in scala di grigi; tali immagini possono essere in formato RAW o ASCII, nel primo i valori di grigio sono memorizzati come semplici byte, nel secondo sono rappresentati da numeri tra 0 e 255. (Nota: le immagini dell'ORL erano nel primo formato, pertanto è stato necessario convertirle, vedi \ref{subsec:conversione})
+
+\section{I test}
+\subsection{Conversione}\label{subsec:conversione}
+
+\end{document}
+
