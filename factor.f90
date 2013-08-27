@@ -43,7 +43,7 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
   WRITE (*,*) 'Inizio fattorizzazione...'
   DO steps = 1, maxiter
      ! Aggiorno U
-     WRITE (*,'(A,I2,A)', advance='no') '[', steps, ' ] Aggiorno U '
+     WRITE (*,'(A,I3,A)', advance='no') '[', steps, ' ] Aggiorno U '
      U = ( U/MATMUL(W,transpose(V)) ) * ( MATMUL((W*A)/(UV + E),transpose(V)) )
 
      UV = MATMUL(U,V)
@@ -95,7 +95,7 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
   WRITE(*,*) ' Norma infinito V: ', norm_infty(V, rank, col)
 
   WRITE(*,*) ''
-  WRITE(*,'(A,I2)', advance='no') ' Passi: ', steps
+  WRITE(*,'(A,I3)', advance='no') ' Passi: ', steps
   WRITE(*,'(A,F10.2)', advance='no') ' Precisione: ', precision 
   WRITE(*,*) 'KL Divergence: ', KL
 
