@@ -59,6 +59,19 @@ Vedi \ref{itm:A2B}.
 Per leggere e scrivere i file PGM è stata utilizzata la libreria \texttt{PGMA IO} (per Fortran90), scritta da John Burkardt e rilasciata sotto licenza libera (LGPL).
 Vedi \ref{itm:IO}.
 
+\subsection{Makefile}
+Per testare il progetto è possibile clonare il necessario via \texttt{git} all'indirizzo:\\
+\begin{center} \url{http://poisson.phc.unipi.it/~brocchi/git/WNMF/} \end{center}
+
+Dalla cartella è possibile dare i seguenti comandi:
+\begin{description}
+\item[\texttt{make}]: compilerà i sorgenti \texttt{Fortran90} e li linkerà nell'eseguibile \texttt{PGM}
+\item[\texttt{make run}]: esegue un \texttt{make} e lancia in automatico l'eseguibile
+\item[\texttt{make faces}]: si occupa di scaricare il database dei volti, scompattarlo, compilare il convertitore e convertire le immagini in \texttt{ASCII}, rinumerandole in ordine crescente nella cartella \texttt{faces}
+\item[\texttt{make clean / cclean}]: elimina e pulisce file binari e temporanei
+\item[\texttt{make whole}]: esegue sia un \texttt{make faces} che un \texttt{make}, insieme a \texttt{run} esegue direttamente il programma.
+\end{description}
+
 \section{I dati}
 L'algoritmo lavora su dati ottenuti dall'\texttt{ORL} face database\footnote{un insieme di volti dall'Olivetti Research Laboratory di Cambridge, UK} - vedi \ref{itm:ORL}.
 Nello specifico si tratta di $400$ volti ($10$ immagini di $40$ soggetti). Le immagini sono in formato PGM\footnote{Portable Gray Map format}, ovvero in scala di grigi; tali immagini possono essere in formato RAW o ASCII, nel primo i valori di grigio sono memorizzati come semplici byte, nel secondo sono rappresentati da numeri tra 0 e 255. \\ 
