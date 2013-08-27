@@ -102,7 +102,26 @@ PROGRAM test
   filename = 'UV.pgm'
   CALL simpleprint (UV,row,col,max,filename)
 
+  ! Fattorizzazione senza pesi
+  WRITE(*,*) 'Fattorizzazione non pesata'
+  ! Creo la matrice dei pesi
+  WRITE ( *, '(a)', advance='no' ) '  Creo matrice dei pesi..'
+  DO i = 1, row
+     DO j = 1, col
+        localW(i,j) = 1
+     END DO
+  END DO
+
+  WRITE ( *, '(a)', advance='no' ) '  Factor... '
+  CALL factor (A, localW, row,col,rank,UV,maxUV,maxiter)
+  WRITE ( *, '(a)' ) ' '
+  WRITE ( *, '(a)' ) '  Fattorizzazione fatta.'
+
+  filename = 'UV_noW.pgm'
+  CALL simpleprint (UV,row,col,max,filename)
+
   DEALLOCATE ( A )
   DEALLOCATE ( UV )
+  DEALLOCATE ( localW )
 
 END PROGRAM test
