@@ -7,11 +7,9 @@ SUBROUTINE print(B,row,col,filename)
   INTEGER n, m                     ! indici per le immagini
   CHARACTER (len = 10) filename
 
-  ! INTEGER ( kind = 4 ) file_unit
-
   INTEGER ( kind = 4 ) i,j,k
   INTEGER ( kind = 4 ) ierror
-  ! INTEGER ( kind = 4 ) ios
+
   INTEGER ( kind = 4 ), parameter :: nrow = 112, ncol= 92
   INTEGER, save :: maxg = 0, totmax, totcol
 
@@ -24,8 +22,6 @@ SUBROUTINE print(B,row,col,filename)
   ! maxg = 0
 
   totcol = ncol*col
-  ! ALLOCATE ( faces(nrow,totcol) )
-  ! ALLOCATE ( sface(nrow,ncol) )
 
   write(*,*) 'faces', shape(faces)
 
@@ -56,3 +52,37 @@ SUBROUTINE print(B,row,col,filename)
   WRITE(*,'(A,A)') 'Scritta faces in ', filename
 
 END SUBROUTINE print
+
+
+SUBROUTINE simpleprint(B,row,col,max,filename)
+  ! Scrivo su file pgm la matrice int(B) così com'è
+
+  INTEGER :: row, col
+  REAL(KIND(0.d0)), dimension (row,col) :: B
+  INTEGER, dimension (row,col) :: G
+
+  INTEGER n, m                     ! indici per le immagini
+  CHARACTER ( len = 80 ) filename
+  INTEGER i,j, max
+  INTEGER ( kind = 4 ) ierror
+
+  ! Stampo a video
+  ! write (*,*) ''
+  ! Write(*,'(A)') ' B: '
+  DO i = 1, row
+     DO j = 1, col        
+        G(i,j) = int ( B(i,j) )
+        ! write (*,'(A,I4)',advance='no') ' ', G(i,j)
+        IF ( max < G(i,j) ) THEN
+            max = G(i,j)
+         ENDIF
+     END DO
+     ! write(*,*) ' '
+  END DO
+
+  CALL pgma_check_data ( row, col, max, G, ierror )
+
+  CALL pgma_write ( filename, row, col, G, ierror )
+  WRITE(*,'(A,A)') ' Matrice scritta in ', filename
+
+END SUBROUTINE simpleprint

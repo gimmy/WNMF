@@ -3,21 +3,20 @@ SUBROUTINE createAW (A, W, row, col)
   ! le immagini sono 92x112 = 10304
   INTEGER :: row, col
   INTEGER, dimension (row,col) :: A
-  REAL, dimension (row,col) :: W
+  REAL(KIND(0.d0)), dimension (row,col) :: W
 
   INTEGER n, m                     ! indice per le immagini
   INTEGER ( kind = 4 ) :: file_unit
   CHARACTER ( len=1024 ) :: filename
   CHARACTER ( len=1024 ) :: format_string
 
-  INTEGER ( kind = 4 ) i,j,k
+  INTEGER i,j,k
+  INTEGER nrow, ncol, maxg
   INTEGER ( kind = 4 ) ierror
   INTEGER ( kind = 4 ) ios
-  INTEGER ( kind = 4 ) nrow, ncol, maxg
-
 
   INTEGER ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: readPGM
-  REAL ( kind = 4 ), ALLOCATABLE, DIMENSION (:,:) :: localW
+  REAL(KIND(0.d0)), ALLOCATABLE, DIMENSION (:,:) :: localW
   LOGICAL DO_localW
   INTEGER, parameter :: sigma = 30
 

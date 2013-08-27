@@ -4,13 +4,10 @@ PROGRAM wnmf
 
   ! righe e colonne (numero di immagini) di A
   INTEGER :: row = 10304, col = 100, rank = 49
-  REAL (kind = 8), ALLOCATABLE, DIMENSION (:,:) :: W
+  REAL (KIND(0.d0)), ALLOCATABLE, DIMENSION (:,:) :: W, UV
   INTEGER (kind = 4), ALLOCATABLE, DIMENSION (:,:) :: A
 
-  REAL (kind = 8), ALLOCATABLE, DIMENSION(:,:) :: UV
-
-  INTEGER, parameter :: maxiter = 20
-  INTEGER, parameter :: sigma = 30
+  INTEGER, parameter :: maxiter = 20, sigma = 30
   CHARACTER (len = 10) filename
   INTEGER (kind = 4) ierror
   REAL maxUV
@@ -25,8 +22,8 @@ PROGRAM wnmf
 
   CALL createAW (A, W, row, col)
 
-  ! filename = 'A.pgm'
-  ! CALL print(A,row,col,filename)
+  filename = 'A.pgm'
+  CALL print(A,row,col,filename)
 
   ALLOCATE ( UV(row,col) )
 
@@ -35,7 +32,7 @@ PROGRAM wnmf
   CALL factor (A, W, row, col, rank, UV, maxUV, maxiter)
   WRITE(*,*) 'Fattorizzazione conclusa.'
 
-  IF ( maxUV < 255 ) THEN
+  IF ( maxUV <= 255 ) THEN
      UV = int( UV )                ! cast a int
      filename = 'UV.pgm'
      CALL print(UV,row,col,filename)

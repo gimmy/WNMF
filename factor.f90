@@ -6,17 +6,19 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
   ! A/B is the Hadamard division
 
   INTEGER row, col, rank
-  INTEGER (kind = 4), DIMENSION(row,col) :: A
-  REAL, DIMENSION(row,col) :: W, UV
-  REAL (kind = 8), DIMENSION(row,rank) :: U
-  REAL (kind = 8), DIMENSION(rank,col) :: V
+  INTEGER, DIMENSION(row,col) :: A
+  REAL(KIND(0.d0)), DIMENSION(row,col) :: W, UV
+  REAL(KIND(0.d0)), DIMENSION(row,rank) :: U
+  REAL(KIND(0.d0)), DIMENSION(rank,col) :: V
 
   INTEGER i, j, steps, maxiter
-  DOUBLE PRECISION, parameter :: eps = 1e-7, precision = 1e4
-  REAL (kind = 8) KLdivergence, KL, Euclidea, euclid
+  REAL (KIND(0.d0)), parameter :: eps = 1e-37, precision = 1e2
+  REAL (KIND(0.d0)) KLdivergence, KL, Euclidea, euclid
 
   REAL norm_infty, maxUV, lastmaxUV
-  REAL, DIMENSION(row,col) :: E
+  REAL(KIND(0.d0)), DIMENSION(row,col) :: E
+
+  CHARACTER ( len = 80 ) filename
 
   ! Creo la matrice E per evitare la divisione per zero
   DO i = 1, row
@@ -28,15 +30,15 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
   ! Tiro a caso U e calcolo V
   CALL RANDOM_SEED()
   CALL RANDOM_NUMBER(U)
-  U = int(U*10)
+  U = int(U*100)
   CALL RANDOM_NUMBER(V)
-  V = int(V*10)
+  V = int(V*100)
   ! CALL createV(A,U,V, row, rank, col)
-  V = int(V)
+  ! V = int(V)
 
   UV = MATMUL(U,V)
   WRITE(*,*) 'Calcolata UV'
-  call checkUV(UV, row, col, maxUV)
+  ! call checkUV(UV, row, col, maxUV)
 
   WRITE (*,*) 'Inizio fattorizzazione...'
   DO steps = 1, maxiter
@@ -44,39 +46,33 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
      WRITE (*,'(A,I2,A)', advance='no') '[', steps, ' ] Aggiorno U '
      U = ( U/MATMUL(W,transpose(V)) ) * ( MATMUL((W*A)/(UV + E),transpose(V)) )
 
-     ! ! Check Non NaN in U
-     ! DO i = 1, row
-     !    DO j = 1, rank
-     !       IF (isnan( U(i,j) )) THEN
-     !          write(*,'(A,I3,A,I3,A,I3)') 'i:',i,' j:',j, 'step:', steps
-     !          STOP "NaN in U"
-     !       ENDIF
-     !    END DO
-     ! END DO
-
      UV = MATMUL(U,V)
      KL = KLdivergence(A, UV, W, row, col, eps)
      WRITE (*,'(A,F11.2,A)', advance='no') ' (KL Div: ', KL, ')'
      call checkUV(UV, row, col, maxUV)
 	lastmaxUV = maxUV
-     ! IF ( steps == maxiter ) THEN
-     !    UV = MATMUL(U,V)
-     !    KL = KLdivergence(A, UV, W, row, col, eps)
-     !    WRITE (*,*) 'KL Div [U update]: ', KL
-     ! ENDIF
-
 
      ! ! Ricalcolo V
-    !  IF (( MOD(steps,2) == 0 ) .and. (steps < 10)) THEN
-      !  write(*,*) ''
-       ! CALL createV(A,U,V, row, rank, col)
-     ! endif
+     ! IF (( MOD(steps,2) == 0 ) .and. (steps < 10)) THEN
+     !   write(*,*) ''
+     !   CALL createV(A,U,V, row, rank, col)
+     ! ENDIF
 
      ! Aggiorno matrice V
      ! WRITE (*,'(A,I2,A)', advance='no') '[', steps, ' ] Aggiorno V '
      WRITE (*,'(A)', advance='no') ' | Aggiorno V '
      V = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
      ! Vaux = ( V/MATMUL(transpose(U),W) ) * ( MATMUL(transpose(U),(W*A)/(UV + E)) )
+
+     ! Check NaN in V
+     DO i = 1, rank
+        DO j = 1, col
+           IF (isnan( V(i,j) )) THEN
+              write(*,'(A,I3,A,I3,A,I3)') 'i:',i,'  j:',j, '  step:', steps
+              STOP "NaN in V"
+           ENDIF
+        END DO
+     END DO
 
      ! V = Vaux
      UV = MATMUL(U,V)
@@ -89,56 +85,56 @@ SUBROUTINE factor (A, W, row, col, rank, UV, maxUV, maxiter)
      
      KL = KLdivergence(A, UV, W, row, col, eps)
      WRITE (*,*) ' | KL Div: ', KL
-     IF ( (KL < precision) .or. (maxUV <= 255) ) EXIT
-
-     ! IF ( steps == maxiter ) THEN
-     !    WRITE (*,*) 'KL Div [UV update]: ', KL
-     ! ENDIF
+     IF ( (KL < precision) .and. (maxUV <= 255) ) EXIT
 
      ! euclid = Euclidea(A, UV, row, col)
   END DO
   
-  WRITE(*,*) 'Norma infinito U: ', norm_infty(U, row, rank)
-  WRITE(*,*) 'Norma infinito V: ', norm_infty(V, rank, col)
+  WRITE(*,*) ''
+  WRITE(*,*) ' Norma infinito U: ', norm_infty(U, row, rank)
+  WRITE(*,*) ' Norma infinito V: ', norm_infty(V, rank, col)
 
   WRITE(*,*) ''
-  WRITE(*,'(A,I2)', advance='no') 'Passi: ', steps
+  WRITE(*,'(A,I2)', advance='no') ' Passi: ', steps
   WRITE(*,'(A,F10.2)', advance='no') ' Precisione: ', precision 
   WRITE(*,*) 'KL Divergence: ', KL
 
 END SUBROUTINE factor
 
 SUBROUTINE checkUV(UV, row, col, maxUV)
-  LOGICAL HELP, TOOBIG
+  LOGICAL :: ZERO = .FALSE. , TOOBIG = .FALSE. , NAN = .FALSE.
   REAL maxUV
   integer row, col, i ,j
-  REAL, DIMENSION(row,col) :: UV
+  REAL(KIND(0.d0)), DIMENSION(row,col) :: UV
 
   maxUV = 0
-  HELP = .FALSE.
-  TOOBIG = .FALSE.
 
-  ! Check Zero in UV
   DO i = 1, row
      DO j = 1, col
-        IF ( UV(i,j) == 0 ) THEN
-           HELP = .TRUE.
-        ENDIF
-        IF ( UV(i,j) > 255 ) THEN
-           TOOBIG = .TRUE.
-           IF ( maxUV < UV(i,j) ) then
-              maxUV = UV(i,j)
+        IF ( isnan(UV(i,j)) ) THEN
+           NAN = .TRUE.
+           STOP 'NaN in UV'
+        ELSE 
+           IF ( UV(i,j) == 0 ) THEN
+              ZERO = .TRUE.
+           Else
+              IF ( maxUV < UV(i,j) ) then
+                 maxUV = UV(i,j)
+                 IF ( UV(i,j) > 255 ) THEN
+                    TOOBIG = .TRUE.
+                 ENDIF
+              ENDIF
            ENDIF
         ENDIF
      END DO
   END DO
-  IF (HELP) THEN
-     STOP "Zero in UV!"
+  IF (ZERO) THEN
+      WRITE(*,*) "Zero found"
   ENDIF
   IF (TOOBIG) THEN
-     WRITE(*,'(A,F8.2)', advance='no') " max in UV: ", maxUV
+     WRITE(*,'(A,F6.2)', advance='no') " max in UV: ", maxUV
   ELSE
-     WRITE(*,'(A,F3.2)', advance='no') "UV nella media, max:", maxUV
+     WRITE(*,'(A,F6.2)', advance='no') " UV nella media, max:", maxUV
   ENDIF
 
 ENDSUBROUTINE checkUV
@@ -148,16 +144,18 @@ function KLdivergence (A, UV, W, row, col, eps) result(KLDiv)
   ! IMPLICIT NONE
   INTEGER row, col
   INTEGER, DIMENSION (row,col) :: A
-  REAL (kind = 8), DIMENSION (row,col) :: UV, W, DIV
+  REAL(KIND(0.d0)), DIMENSION (row,col) :: UV, W, DIV
   INTEGER i, j
-  REAL (kind = 8) KLDiv, eps, normU, normV, norm
+  REAL(KIND(0.d0)) KLDiv, eps, normU, normV, norm
 
   ! norm = normU*normV
 
   KLDiv = 0
   DO i = 1, row                 
      DO j = 1, col
-        DIV(i,j) = log( A(i,j)/UV(i,j) + eps)
+        IF ( A(i,j) > 0 ) THEN ! SALTIAMO ELEMENTI 0 ?
+           DIV(i,j) = log( A(i,j)/ ( UV(i,j) + eps ) ) 
+        ENDIF
         IF (isnan( DIV(i,j) )) THEN
            WRITE(*,*) 'i:',i,' j:',j
            STOP '"DIV is NaN [in log]"'
@@ -220,7 +218,7 @@ function norm_infty (B, row, col) result(norm)
   ! Calcola la norma infinito di B
   IMPLICIT NONE
   INTEGER row, col
-  REAL, DIMENSION (row,col) :: B
+  REAL(KIND(0.d0)), DIMENSION (row,col) :: B
   REAL, DIMENSION (col) :: v
   INTEGER i
   REAL aux, norm

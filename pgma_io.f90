@@ -246,11 +246,12 @@ subroutine pgma_check_data ( row_num, col_num, g_max, g, ierror )
     stop
   end if
 
-  if ( g_max < maxval ( g(1:row_num,1:col_num) ) ) then
+  if ( g_max < int ( maxval ( g(1:row_num,1:col_num) ) ) ) then
     write ( *, '(a)' ) ' '
     write ( *, '(a)' ) 'PGMA_CHECK_DATA - Fatal error!'
     write ( *, '(a)' ) '  At least one gray value exceeds G_MAX.'
     write ( *, '(a,i12)' ) '  G_MAX = ', g_max
+    write ( *, '(a,i12)' ) '  MAXval = ', int ( maxval ( g(1:row_num,1:col_num) ) )
     ierror = 1
     stop
   end if
