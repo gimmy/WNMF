@@ -33,11 +33,12 @@ PROGRAM wnmf
   CALL factor (A, W, row, col, rank, UV, maxUV, maxiter)
   WRITE(*,*) 'Fattorizzazione conclusa.'
 
-  IF ( maxUV <= 255 ) THEN
-     UV = int( UV )                ! cast a int
-     filename = 'UV.pgm'
-     CALL print(UV,row,col,filename)
-  ENDIF
+  filename = 'UV.pgm'
+  CALL print(UV,row,col,filename)
+
+  ! IF ( maxUV <= 255 ) THEN
+  !    UV = int( UV )                ! cast a int
+  ! ENDIF
 
   ! Fattorizzazione senza pesi
   WRITE(*,*) 'Fattorizzazione non pesata'

@@ -5,21 +5,16 @@
 \usepackage{graphicx}
 \usepackage{subfigure}
 \usepackage{amsmath,amssymb, amsthm}
-\usepackage{hyperref}
-\hypersetup{
-  colorlinks, linkcolor=blue
-}
-% \newcommand{\R}{\mathbb{R}}
-% \newcommand{\N}{\mathbb{N}}
 
-% \theoremstyle{plain}
-% \newtheorem{teorema}{Teorema}
-
-% \theoremstyle{plain}
-% \newtheorem{proposizione}{Proposizione}
-
-% \theoremstyle{definition}
-% \newtheorem{definizione}{Definizione}
+% Customized hyper references
+\usepackage[pdftex,colorlinks]{hyperref}
+%% Collegamenti ipertestuali in blu
+%% in modo che siano visibili anche stampati
+\hypersetup{%
+            citecolor=blue,%
+            filecolor=blue,%
+            linkcolor=blue,%
+            urlcolor=blue}
 
 \author{Gianmarco Brocchi}
 \title{Weighted Nonnegative Matrix Factorization \\
@@ -43,24 +38,30 @@ Data la matrice $A$, la sua distanza dalla fattorizzazione $UV$ è:
 Data la matrice $A$, stimeremo la sua distanza dalla fattorizzazione $UV$ con la \emph{KL-divergence} pesata con $W$ in questo modo:
 \[ D_W(A \lVert UV) := \sum_{ij} \left[ W \circ \left( A \circ \log_{\circ} \frac{[A]}{[UV]} - A + UV \right) \right]_{ij} \]
 
-\subsection{Update rules}
+\subsection{Update rules}\label{updaterules}
 La divergenza pesata in \ref{KL-div} non aumenta con i seguenti aggiornamenti:
 
 \[ \frac{[V]}{[U^tW]} \circ \left( U^t \frac{[W \circ A]}{[UV]} \right) \rightarrow V \text{ , } \frac{[U]}{[WV^t]} \circ \left( \frac{W \circ A}{[UV]}V^t \right) \rightarrow U \]
 
 la divergenza $D_W(A\lVert UV)$ non cresce con tali aggiornamenti sse $U$ e $V$ sono non negative.
 
-\subsection{Conversione}\label{subsec:conversione}
-Le immagini, per poter applicare l'algoritmo, sono state convertite da formato RAW in ASCII e rinumerate da $1$ a $400$ per un più semplice recupero delle stesse. Per fare ciò è stato usata la libreria \texttt{PGMA TO PGMB} 
-(in \texttt{C++}), rilasciata da John Burkardt sotto licenza libera (LGPL).
-Vedi \ref{itm:A2B}.
+\subsection{Passi}
+\paragraph{Conversione}\label{subsec:conversione}
+Le immagini, per poter applicare l'algoritmo, sono state convertite da formato RAW in ASCII e rinumerate da $1$ a $400$ per un più semplice recupero delle stesse. Per la conversione delle immagini è stato usata la libreria \texttt{PGMA TO PGMB} (in \texttt{C++}).
+[Vedi \ref{itm:A2B}].
 
-\subsection{Librerie} 
-Per leggere e scrivere i file PGM è stata utilizzata la libreria \texttt{PGMA IO} (per Fortran90), scritta da John Burkardt e rilasciata sotto licenza libera (LGPL).
-Vedi \ref{itm:IO}.
+Le immagini vengono lette e convertite in ``vector face'', salvati come vettori colonna nella matrice $A$; viene contemporaneamente creata la matrice dei \emph{locale} dei pesi $W$, i cui elementi sono dati da:
+
+\[ localW(i,j) = e^{\frac{-d}{\sigma^2}} \]
+
+dove $d$ è la distanza dal centro dell'immagine e $\sigma$ viene fissato a $30$.
+
+\paragraph{Librerie} 
+Per leggere e scrivere i file PGM è stata utilizzata la libreria \texttt{PGMA IO} (per Fortran90).
+[Vedi \ref{itm:IO}].
 
 \subsection{Makefile}
-Per testare il progetto è possibile clonare il necessario via \texttt{git} all'indirizzo:\\
+Per testare il progetto è possibile clonare il necessario via \texttt{git} all'indirizzo:
 \begin{center} \url{http://poisson.phc.unipi.it/~brocchi/git/WNMF/} \end{center}
 
 Dalla cartella è possibile dare i seguenti comandi:
@@ -73,12 +74,12 @@ Dalla cartella è possibile dare i seguenti comandi:
 \end{description}
 
 \section{I dati}
-L'algoritmo lavora su dati ottenuti dall'\texttt{ORL} face database\footnote{un insieme di volti dall'Olivetti Research Laboratory di Cambridge, UK} - vedi \ref{itm:ORL}.
+L'algoritmo lavora su dati ottenuti dall'\texttt{ORL} face database\footnote{un insieme di volti dall'Olivetti Research Laboratory di Cambridge, UK}. [Vedi \ref{ORL}].
 Nello specifico si tratta di $400$ volti ($10$ immagini di $40$ soggetti). Le immagini sono in formato PGM\footnote{Portable Gray Map format}, ovvero in scala di grigi; tali immagini possono essere in formato RAW o ASCII, nel primo i valori di grigio sono memorizzati come semplici byte, nel secondo sono rappresentati da numeri tra 0 e 255. \\ 
 (Nota: le immagini dell'\texttt{ORL} erano nel primo formato, pertanto è stato necessario convertirle: vedi \ref{subsec:conversione})
 
 \section{Test}
-Al fine di ottenere la miglior velocità di convergenza (e quindi il minor valore della \emph{KL-divergence} dopo un numero fissato di passi) sono state testate diverse implementazioni dell'algoritmo. In particolare, come accennato in \ref{article}, le matrici $U$ e $V$ possono essere:
+Al fine di ottenere la miglior velocità di convergenza (e quindi il minor valore della \emph{KL-divergence} dopo un numero fissato di passi) sono state testate diverse implementazioni dell'algoritmo. In particolare, come accennato in \ref{libnmf}, le matrici $U$ e $V$ possono essere:
 \begin{itemize}
 \item generate entrambe in modo random
 \item generata random una e calcolata l'altra
@@ -135,22 +136,24 @@ Alcuni esempi di immagini:
   \caption{200 iterazioni, occhi a confronto}
 \end{figure}
 
+\begin{figure}
+  % \centering
+  \subfigure
+  {\includegraphics[scale=0.45]{img/negUV_noW.eps}}
+  \subfigure
+  {\includegraphics[scale=0.45]{img/negUV.eps}}
+  % \vspace{2mm}
+  \subfigure
+  {\includegraphics[scale=0.45]{img/negA.eps}}
+  \caption{Negativi dopo 60 iterazioni a confronto. Dall'alto: Senza pesi, Pesi centrati, Negativo Originale}
+\end{figure}
+
+
 \newpage
-\section{Link}
-\begin{enumerate}
-\item \texttt{ORL} face database \\
-  \url{http://www.cl.cam.ac.uk/research/dtg/attarchive/facedatabase.html}\label{itm:ORL}
 
-\item \texttt{PGMA TO PGMB} \\
-  \url{http://people.sc.fsu.edu/~jburkardt/cpp_src/pgma_to_pgmb/pgma_to_pgmb.html}\label{itm:A2B}
-
-\item \texttt{PGMA IO} \\
-  \url{http://people.sc.fsu.edu/~jburkardt/f_src/pgma_io/pgma_io.html}\label{itm:IO}
-
-\end{enumerate}
-
-LIBNMF – A LIBRARY FOR NONNEGATIVE MATRIX FACTORIZATION, \\
-A. Janecek, S. Schulze Grotthoff, W.N. Gansterer\label{article}
+\clearpage{} % stampa pure quello che ti manca
+%\nocite{*}
+\include{bibliography}
 
 \end{document}
 
