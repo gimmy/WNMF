@@ -17,71 +17,96 @@
             urlcolor=blue}
 
 \author{Gianmarco Brocchi}
-\title{Weighted Nonnegative Matrix Factorization \\
-and Face Feature Extraction \\ - \\ un'implementazione}
+% \title{Weighted Nonnegative Matrix Factorization \\
+% and Face Feature Extraction \\ - \\ un'implementazione}
+\title{Face Feature Extraction: un'implementazione}
 % \subtitle{Un'implementazione}
 \date{\today}
 
 \begin{document}
 \maketitle
 
-Usando l'algoritmo suggerito nell'articolo \ref{wnmf} si vuole applicare la WNMF ad una raccolta di immagini in modo da enfatizzare certe parti della matrice che le rappresenta. Useremo immagini di volti per evidenziare la parte centrale del viso.
+\section{Il problema}
+Data un'immagine (o una raccolta di immagini), questa viene rappresentata come matrice numerica di un certo ordine. Si vuole approssimare tale matrice con il prodotto di due matrici di rango inferiore e, allo stesso tempo, cercare di mantenere più dati possibili in specifiche zone della matrice da approssimare.
 
-\section{L'algoritmo}
+\paragraph{Soluzione implementata}
+Per ottenere il risultato cercato su matrici rappresentanti volti (vedi \ref{faces}), viene utilizzata la NMF\footnote{Nonnegative Matrix Factorization - Fattorizzazione Matriciale Non negativa}, dove la matrice di partenza $A$ di ordine $(n \times m)$ viene approssimata come prodotto delle matrici non negative $U$ e $V$ di ordine $(n \times k)$ e $(k \times m)$.
 
-\subsection{Kullback-Leibler Divergence}\label{KL-div}
-Per studiare la convergenza del metodo vengono proposte regole di aggiornamento sotto le quali non aumentano, rispettivamente, la \emph{norma euclidea} e la \emph{Kullback-Leibler Divergence}; quest'ultima è una stima non simmetrica della differenza tra due distribuzioni di probabilità. Nello specifico, date due distribuzioni di probabilità $P$ e $Q$, la divergenza Kullback–Leibler di $Q$ da $P$, indicata con $D_{KL}(P \lVert Q)$, è una misura dell'informazione persa quando $Q$ è usata per approssimare $P$. Tale misura è scelta comune nell'approssimazione di immagini come nel nostro caso.
+Al fine di preservare specifiche zone della matrice di partenza viene usata la WNMF\footnote{\emph{Weighted} Nonnegative Matrix Factorization - Fattorizzazione Matriciale \emph{Pesata} Non negativa} la quale sfrutta una matrice di pesi $W$ dello stesso ordine di $A$ per enfatizzare specifiche zone di dati durante l'approssimazione.
 
-Data la matrice $A$, la sua distanza dalla fattorizzazione $UV$ è:
-\[ D(A \lVert UV) := \sum_{ij} \left[ A \circ \log_{\circ} \frac{[A]}{[UV]} - A + UV \right]_{ij} \]
+\section{Il software}
+È stato sviluppato un software in \texttt{FORTRAN 90} che implementa la WNMF su una singola immagine o su una collezione di immagini in input.
 
-Per cui data $A$, stimeremo la sua distanza dalla fattorizzazione $UV$ con la \emph{KL-divergence} pesata con $W$ in questo modo:
-\[ D_W(A \lVert UV) := \sum_{ij} \left[ W \circ \left( A \circ \log_{\circ} \frac{[A]}{[UV]} - A + UV \right) \right]_{ij} \]
+\subsection{L'algoritmo}
+Usando l'algoritmo suggerito in \ref{wnmf} e adattato come accennato in \ref{libnmf}, viene applicata la WNMF a una matrice $A$ data in input nel seguente modo:
+\begin{enumerate}
+\item Viene generata la matrice dei pesi $W$ (vedi \ref{W});
+\item Vengono generate in maniera casuale le matrici $U$ e $V$, dato il rango $k$;
+\item Viene calcolata $UV$ e vengono aggiornate le matrici $U$ e $V$ (vedi \ref{updaterules});
+\item Viene calcolata la divergenza di Kullback-Leibler\footnote{la indicheremo con \emph{divergenza KL}, (vedi \ref{KL-div})} tra la matrice di partenza $A$ e l'approssimazione $UV$ finora ottenuta;
+\end{enumerate}
+Gli ultimi due punti vengono ripetuti fino a che non si raggiunge il numero massimo di iterazioni fissato o finché la divergenza di Kullback-Leibler non scende sotto una soglia fissata.
 
-Nota: con $\circ$ si indica di \emph{prodotto di Hadamard}, mentre con $\frac{[\;]}{[\;]}$ la \emph{divisione di Hadamard}, effetuatte componente a componente; con $\log_{\circ}$ si indica il logaritmo delle componenti.
+% da enfatizzare certe parti della matrice che le rappresenta. Useremo immagini di volti per evidenziare la parte centrale del viso.
 
-\subsection{Update rules}\label{updaterules}
-La divergenza pesata in \ref{KL-div} non aumenta con i seguenti aggiornamenti:
+\paragraph{Matrice dei pesi}\label{W}
+La matrice dei pesi $W$ viene generata a partire dalle dimensioni dell'immagine in input, i suoi elementi sono dati da:
+
+\[ W(i,j) = e^{-\frac{d}{\sigma^2}} \]
+
+dove $d$ è la distanza del punto $(i,j)$ dal centro dell'immagine (ovvero $(56,5 ; 46,5)$ per una matrice $112 \times 92$); $\sigma$ è un parametro fissato a $30$.
+
+\paragraph{Regole di aggiornamento}\label{updaterules}
+Le matrici $U$ e $V$ vengono aggiornate nel modo seguente:
 
 \[ \frac{[V]}{[U^tW]} \circ \left( U^t \frac{[W \circ A]}{[UV]} \right) \rightarrow V \text{ , } \frac{[U]}{[WV^t]} \circ \left( \frac{[W \circ A]}{[UV]}V^t \right) \rightarrow U \]
 
-In \ref{wnmf} viene mostrato come la divergenza $D_W(A\lVert UV)$ non cresce con tali aggiornamenti se $U$ e $V$ sono non negative.
+\vspace{5mm}
+In \ref{wnmf} viene mostrato come la divergenza KL pesata $D_W(A\lVert UV)$ non aumenti con questi aggiornamenti di $U$ e $V$, se queste sono non negative.
 
-\subsection{Passi}
-\paragraph{Conversione}\label{subsec:conversione}
-Le immagini, per poter applicare l'algoritmo, sono state convertite da formato RAW in ASCII e rinumerate da $1$ a $400$ per un più semplice recupero delle stesse. Per la conversione delle immagini è stato usata la libreria \texttt{PGMA TO PGMB} (in \texttt{C++}).
-[Vedi \ref{itm:A2B}].
+\paragraph{Divergenza di Kullback-Leibler}\label{KL-div}
+La \emph{Kullback-Leibler Divergence} è una stima non simmetrica della differenza tra due distribuzioni di probabilità. Nello specifico, date due distribuzioni di probabilità $P$ e $Q$, la divergenza di Kullback–Leibler di $Q$ da $P$, indicata con $D_{KL}(P \lVert Q)$, è una misura dell'informazione persa quando $Q$ è usata per approssimare $P$. Tale misura è spesso usata nell'approssimazione di immagini, come nel nostro caso.
 
-Le immagini vengono lette e convertite in ``vector face'', salvati come vettori colonna nella matrice $A$; viene contemporaneamente creata la matrice dei \emph{locale} dei pesi $W$, i cui elementi sono dati da:
+Data la matrice $A$, la sua distanza dalla fattorizzazione $UV$ è data da\footnote{Con $\circ$ si indica di \emph{prodotto di Hadamard}, mentre con $\frac{[X]}{[Y]}$ si indica la \emph{divisione di Hadamard}, effetuate componente a componente; con $\log_{\circ}$ si indica il logaritmo delle componenti.}:
+\[ D(A \lVert UV) := \sum_{ij} \left[ A \circ \log_{\circ} \frac{[A]}{[UV]} - A + UV \right]_{ij} \]
+
+Per cui data $A$, stimeremo la sua distanza dalla fattorizzazione $UV$ con la \emph{KL-divergence \emph{pesata}} con $W$ nel seguente modo:
+\[ D_W(A \lVert UV) := \sum_{ij} \left[ W \circ \left( A \circ \log_{\circ} \frac{[A]}{[UV]} - A + UV \right) \right]_{ij} \]
+
+\paragraph{I dati}\label{faces}
+L'algoritmo lavora su dati ottenuti dall'\texttt{ORL} face database [vedi \ref{ORL}].
+Nello specifico si tratta di $400$ volti ($10$ immagini di $40$ soggetti). Le immagini sono in formato PGM\footnote{Portable Gray Map format}, ovvero in scala di grigi; tali immagini possono essere in formato RAW o ASCII, nel primo i valori di grigio sono memorizzati come semplici byte, nel secondo sono rappresentati da un intero compreso tra 0 e 255. \\ 
+(Le immagini dell'\texttt{ORL} erano nel primo formato, è quindi necessario convertirle in ASCII: il software si occupa anche di questo [vedi \ref{paragr:conversione}]).
+
+\subsection{Implementazione}
+Di default il programma si occupa dell'approssimazione di più immagini simultaneamente.
+È possibile cambiare questo comportamento compilando nel \texttt{Makefile} la subroutine \texttt{read.f90} al posto di \texttt{wnmf.f90} (vedi \ref{makefile}).
+
+\paragraph{Conversione}\label{paragr:conversione}
+Le immagini, per poter applicare l'algoritmo, sono state convertite dal formato RAW in ASCII e rinumerate da $1$ a $400$ per un più semplice recupero delle stesse. Per la conversione delle immagini è stata usata la libreria \texttt{PGMA TO PGMB} (in \texttt{C++}) [vedi \ref{itm:A2B}].
+
+Le immagini vengono lette e convertite in ``vector face'' (``vettori faccia''), quindi salvati come vettori colonna di una matrice $A$. Viene contemporaneamente creata una matrice \emph{locale} dei pesi $localW$ (per ogni immagine letta), i cui elementi sono dati, come in \ref{W}, da:
 
 \[ localW(i,j) = e^{-\frac{d}{\sigma^2}} \]
 
-dove $d$ è la distanza dal centro dell'immagine della componente $(i,j)$ e $\sigma$ viene fissato a $30$.
-Anche questa matrice viene convertita e salvata come ``vettore peso'' nella matrice $W$.
+Anche questa matrice viene salvata come ``vettore peso'' nella matrice dei pesi $W$.
 
 \paragraph{Iterazioni}
-Fissato un numero massimo di passi e la precisione massima si applicano le regole in \ref{updaterules}.\\
-Vengono stampati a video la KL-divergence e il massimo della matrice $UV$ ad ogni passo.
+Fissato un numero massimo di passi e la precisione massima si applicano le regole in \ref{updaterules} alle matrici $U$ e $V$. Viene considerato un passo del programma l'insieme degli ultimi due punti dell'algoritmo.\\
+Il programma stamperà a video la divergenza KL e il massimo della matrice $UV$ ad ogni aggiornamento (due volte per passo).
 
 \paragraph{Stampa}
-Raggiunta la precisione richiesta o superato il numero di iterazioni la fattorizzazione ottenuta viene stampata su file.
-Per il confronto viene eseguita un'ulteriore fattorizzazione con matrice dei pesi fissata a $\textbf{1}$ (senza pesi).
+Raggiunta la precisione richiesta o superato il numero massimo di iterazioni, la matrice $A$ e la fattorizzazione ottenuta vengono stampate sui file \texttt{A.pgm} e \texttt{UV.pgm}.
+Per il confronto viene eseguita un'ulteriore fattorizzazione senza pesi (con gli elementi della matrice dei pesi fissati a $1$).
 
 \paragraph{Librerie}
-Per leggere e scrivere i file PGM è stata utilizzata la libreria \texttt{PGMA IO} (per Fortran90).
-[Vedi \ref{itm:IO}].
-
-\section{I dati}
-L'algoritmo lavora su dati ottenuti dall'\texttt{ORL} face database\footnote{un insieme di volti dall'Olivetti Research Laboratory di Cambridge, UK}. [Vedi \ref{ORL}].
-Nello specifico si tratta di $400$ volti ($10$ immagini di $40$ soggetti). Le immagini sono in formato PGM\footnote{Portable Gray Map format}, ovvero in scala di grigi; tali immagini possono essere in formato RAW o ASCII, nel primo i valori di grigio sono memorizzati come semplici byte, nel secondo sono rappresentati da numeri tra 0 e 255. \\ 
-(Nota: le immagini dell'\texttt{ORL} erano nel primo formato, pertanto è stato necessario convertirle: vedi \ref{subsec:conversione})
+Per leggere e scrivere i file PGM è stata utilizzata la libreria \texttt{PGMA IO} (per Fortran90) [vedi \ref{itm:IO}].
 
 \section{Test}
-
-Per testare il progetto è possibile clonare il necessario via \texttt{git} all'indirizzo:
+È possibile ottenere il software via \texttt{git} clonando il necessario all'indirizzo:
 \begin{center} \url{http://poisson.phc.unipi.it/~brocchi/git/WNMF/} \end{center}
 
-\paragraph{Makefile}
+\paragraph{Makefile}\label{makefile}
 Dalla cartella è possibile dare i seguenti comandi:
 \begin{description}
 \item[\texttt{make}]: compilerà i sorgenti \texttt{Fortran90} e li linkerà nell'eseguibile \texttt{PGM}
@@ -91,7 +116,6 @@ Dalla cartella è possibile dare i seguenti comandi:
 \item[\texttt{make whole}]: esegue sia un \texttt{make faces} che un \texttt{make}, aggiungendo \texttt{run} esegue direttamente il programma.
 \end{description}
 
-
 % Al fine di ottenere la miglior velocità di convergenza (e quindi il minor valore della \emph{KL-divergence} dopo un numero fissato di passi) sono state testate diverse implementazioni dell'algoritmo. In particolare, come accennato in \ref{libnmf}, le matrici $U$ e $V$ possono essere:
 % \begin{itemize}
 % \item generate entrambe in maniera random
@@ -100,7 +124,12 @@ Dalla cartella è possibile dare i seguenti comandi:
 % Sono stati provati enbrambi gli approci.\\
 % Si è anche provato a ricalcolare $V$ a intervalli regolari durante gli aggiornamenti per migliorare la convergenza.
 % Inoltre sono state testate le varianti aggiornando $U$ e $V$ separatamente (ovvero senza usare l'ultimo aggiornamento di $U$ per aggiornare $V$) e scambiando l'ordine di aggiornamento.
-Fissato un numero di iterazioni vengono confrontate le divergenze ottenute usando o meno la matrice dei pesi $W$:
+
+\section{Risultati}
+Per evidenziare comme l'uso della matrice dei pesi $W$ influisca sulla divergenza migliorando l'approssimazione di certe aree dell'immagine vediamo alcuni risultati a confronto.
+
+\subsection{Dati Numerici}
+Fissato il numero di iterazioni vengono confrontate le divergenze ottenute usando o meno la matrice dei pesi $W$:
 
 \begin{center}
   Risultati con $10$ immagini e rango $9$: \\
@@ -129,12 +158,8 @@ Fissato un numero di iterazioni vengono confrontate le divergenze ottenute usand
 
 \end{center}
 
-% \newpage
-\section{Conclusioni}
-Abbiamo visto come, usando la WNMF, sia possibile enfatizzare certe caratteristiche in un'immagine, migliorandone l'accuratezza nei problemi di approssimazione.
-
-\subsection{Esempi}
-Alcuni esempi di immagini:
+\subsection{Immagini}
+Accostamenti di immagini approssimate (con e senza pesi) con l'immagine originale:
 
 \begin{figure}[h]
   \centering
