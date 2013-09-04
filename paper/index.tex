@@ -27,23 +27,31 @@
 \maketitle
 
 \section{Il problema}
-Data un'immagine (o una raccolta di immagini), questa viene rappresentata come matrice numerica di un certo ordine. Si vuole approssimare tale matrice con il prodotto di due matrici di rango inferiore e, allo stesso tempo, cercare di mantenere più dati possibili in specifiche zone della matrice da approssimare.
+Data un'immagine (o una raccolta di immagini), questa viene rappresentata come matrice numerica di un certo ordine. Si vuole approssimare tale matrice con il prodotto di due matrici di ordine inferiore mantenendo più dati possibili in specifiche zone della matrice di partenza.
 
 \paragraph{Soluzione implementata}
 Per ottenere il risultato cercato su matrici rappresentanti volti (vedi \ref{faces}), viene utilizzata la NMF\footnote{Nonnegative Matrix Factorization - Fattorizzazione Matriciale Non negativa}, dove la matrice di partenza $A$ di ordine $(n \times m)$ viene approssimata come prodotto delle matrici non negative $U$ e $V$ di ordine $(n \times k)$ e $(k \times m)$.
 
-Al fine di preservare specifiche zone della matrice di partenza viene usata la WNMF\footnote{\emph{Weighted} Nonnegative Matrix Factorization - Fattorizzazione Matriciale \emph{Pesata} Non negativa} la quale sfrutta una matrice di pesi $W$ dello stesso ordine di $A$ per enfatizzare specifiche zone di dati durante l'approssimazione.
+Al fine di preservare certe zone della matrice di partenza viene usata la WNMF\footnote{\emph{Weighted} Nonnegative Matrix Factorization - Fattorizzazione Matriciale \emph{Pesata} Non negativa} la quale sfrutta una matrice di pesi $W$ dello stesso ordine di $A$ per enfatizzare specifiche zone di dati durante l'approssimazione.
 
 \section{Il software}
 È stato sviluppato un software in \texttt{FORTRAN 90} che implementa la WNMF su una singola immagine o su una collezione di immagini in input.
 
+Tale software può essere scaricato via \texttt{git} all'indirizzo:
+\begin{center} \url{http://poisson.phc.unipi.it/~brocchi/git/WNMF/} \end{center}
+
+Per la compilazione e l'esecuzione si veda le istruzioni \ref{makefile}.
+
 \subsection{L'algoritmo}
-Usando l'algoritmo suggerito in \ref{wnmf} e adattato come accennato in \ref{libnmf}, viene applicata la WNMF a una matrice $A$ data in input nel seguente modo:
+Usando l'algoritmo suggerito in \ref{wnmf} e adattato come accennato in \ref{libnmf}, viene applicata la WNMF a una matrice in input $A$di ordine $(n \times m)$ nel seguente modo:
 \begin{enumerate}
 \item Viene generata la matrice dei pesi $W$ (vedi \ref{W});
-\item Vengono generate in maniera casuale le matrici $U$ e $V$, dato il rango $k$;
-\item Viene calcolata $UV$ e vengono aggiornate le matrici $U$ e $V$ (vedi \ref{updaterules});
-\item Viene calcolata la divergenza di Kullback-Leibler\footnote{la indicheremo con \emph{divergenza KL}, (vedi \ref{KL-div})} tra la matrice di partenza $A$ e l'approssimazione $UV$ finora ottenuta;
+\item Vengono generate in maniera casuale le matrici $U$ e $V$, di ordine $(n \times k)$ e $(k \times m)$, dato $k$;
+  \item Vengono eseguiti iterativamente:
+    \begin{itemize}
+    \item[\textbf{a})] Viene calcolata $UV$ e vengono aggiornate le matrici $U$ e $V$ (vedi \ref{updaterules});
+    \item[\textbf{b})] Viene calcolata la divergenza di Kullback-Leibler\footnote{diremo semplicemente \emph{divergenza KL} e la indicheremo con $D(A\lVert UV)$, (vedi \ref{KL-div})} tra la matrice di partenza $A$ e l'approssimazione $UV$ finora ottenuta;
+    \end{itemize}
 \end{enumerate}
 Gli ultimi due punti vengono ripetuti fino a che non si raggiunge il numero massimo di iterazioni fissato o finché la divergenza di Kullback-Leibler non scende sotto una soglia fissata.
 
@@ -57,7 +65,7 @@ La matrice dei pesi $W$ viene generata a partire dalle dimensioni dell'immagine 
 dove $d$ è la distanza del punto $(i,j)$ dal centro dell'immagine (ovvero $(56,5 ; 46,5)$ per una matrice $112 \times 92$); $\sigma$ è un parametro fissato a $30$.
 
 \paragraph{Regole di aggiornamento}\label{updaterules}
-Le matrici $U$ e $V$ vengono aggiornate nel modo seguente:
+Le matrici $U$ e $V$ vengono aggiornate nel modo seguente\footnote{Con $\circ$ si indica di \emph{prodotto di Hadamard}, mentre con $\frac{[X]}{[Y]}$ si indica la \emph{divisione di Hadamard}, entrambe effettuate componente a componente; con $\log_{\circ}$ si indica il logaritmo delle componenti.}:
 
 \[ \frac{[V]}{[U^tW]} \circ \left( U^t \frac{[W \circ A]}{[UV]} \right) \rightarrow V \text{ , } \frac{[U]}{[WV^t]} \circ \left( \frac{[W \circ A]}{[UV]}V^t \right) \rightarrow U \]
 
@@ -67,15 +75,15 @@ In \ref{wnmf} viene mostrato come la divergenza KL pesata $D_W(A\lVert UV)$ non 
 \paragraph{Divergenza di Kullback-Leibler}\label{KL-div}
 La \emph{Kullback-Leibler Divergence} è una stima non simmetrica della differenza tra due distribuzioni di probabilità. Nello specifico, date due distribuzioni di probabilità $P$ e $Q$, la divergenza di Kullback–Leibler di $Q$ da $P$, indicata con $D_{KL}(P \lVert Q)$, è una misura dell'informazione persa quando $Q$ è usata per approssimare $P$. Tale misura è spesso usata nell'approssimazione di immagini, come nel nostro caso.
 
-Data la matrice $A$, la sua distanza dalla fattorizzazione $UV$ è data da\footnote{Con $\circ$ si indica di \emph{prodotto di Hadamard}, mentre con $\frac{[X]}{[Y]}$ si indica la \emph{divisione di Hadamard}, effetuate componente a componente; con $\log_{\circ}$ si indica il logaritmo delle componenti.}:
+Data la matrice $A$, la sua ``distanza'' dalla fattorizzazione $UV$ è data da:
 \[ D(A \lVert UV) := \sum_{ij} \left[ A \circ \log_{\circ} \frac{[A]}{[UV]} - A + UV \right]_{ij} \]
 
-Per cui data $A$, stimeremo la sua distanza dalla fattorizzazione $UV$ con la \emph{KL-divergence \emph{pesata}} con $W$ nel seguente modo:
-\[ D_W(A \lVert UV) := \sum_{ij} \left[ W \circ \left( A \circ \log_{\circ} \frac{[A]}{[UV]} - A + UV \right) \right]_{ij} \]
+Data $A$, stimeremo la sua distanza dalla fattorizzazione $UV$ con la \emph{KL-divergence \emph{pesata} con $W$} nel seguente modo:
+\[ D_W(A \lVert UV) := \sum_{ij} \left[ \textbf{W} \circ \left( A \circ \log_{\circ} \frac{[A]}{[UV]} - A + UV \right) \right]_{ij} \]
 
 \paragraph{I dati}\label{faces}
 L'algoritmo lavora su dati ottenuti dall'\texttt{ORL} face database [vedi \ref{ORL}].
-Nello specifico si tratta di $400$ volti ($10$ immagini di $40$ soggetti). Le immagini sono in formato PGM\footnote{Portable Gray Map format}, ovvero in scala di grigi; tali immagini possono essere in formato RAW o ASCII, nel primo i valori di grigio sono memorizzati come semplici byte, nel secondo sono rappresentati da un intero compreso tra 0 e 255. \\ 
+Nello specifico si tratta di $400$ volti ($10$ immagini per $40$ soggetti). Le immagini sono in formato PGM\footnote{Portable Gray Map format}, ovvero in scala di grigi; tali immagini possono essere in formato RAW o ASCII, nel primo i valori di grigio sono memorizzati come semplici byte, nel secondo sono rappresentati da un intero compreso tra 0 e 255. \\ 
 (Le immagini dell'\texttt{ORL} erano nel primo formato, è quindi necessario convertirle in ASCII: il software si occupa anche di questo [vedi \ref{paragr:conversione}]).
 
 \subsection{Implementazione}
@@ -89,7 +97,7 @@ Le immagini vengono lette e convertite in ``vector face'' (``vettori faccia''), 
 
 \[ localW(i,j) = e^{-\frac{d}{\sigma^2}} \]
 
-Anche questa matrice viene salvata come ``vettore peso'' nella matrice dei pesi $W$.
+Anche questa matrice viene salvata come ``vettore peso'' nella matrice dei pesi $W$ (che risulta quindi dello stesso ordine di $A$).
 
 \paragraph{Iterazioni}
 Fissato un numero massimo di passi e la precisione massima si applicano le regole in \ref{updaterules} alle matrici $U$ e $V$. Viene considerato un passo del programma l'insieme degli ultimi due punti dell'algoritmo.\\
@@ -102,10 +110,8 @@ Per il confronto viene eseguita un'ulteriore fattorizzazione senza pesi (con gli
 \paragraph{Librerie}
 Per leggere e scrivere i file PGM è stata utilizzata la libreria \texttt{PGMA IO} (per Fortran90) [vedi \ref{itm:IO}].
 
-\section{Test}
-È possibile ottenere il software via \texttt{git} clonando il necessario all'indirizzo:
-\begin{center} \url{http://poisson.phc.unipi.it/~brocchi/git/WNMF/} \end{center}
-
+\subsection{Instruzioni}
+Comandi per compilare ed eseguire il software:
 \paragraph{Makefile}\label{makefile}
 Dalla cartella è possibile dare i seguenti comandi:
 \begin{description}

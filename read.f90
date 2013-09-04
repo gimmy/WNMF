@@ -9,16 +9,11 @@ CONTAINS
     CHARACTER ( len = 80 ) :: file_name
     INTEGER ( kind = 4 ) file_unit
     INTEGER ( kind = 4 ), allocatable, dimension ( :, : ) :: g
-    ! INTEGER ( kind = 4 ) i, j, k
     INTEGER ( kind = 4 ) ierror
     INTEGER ( kind = 4 ) ios
-    INTEGER :: maxg !, maxiter = 68, rank = 15
+    INTEGER :: maxg
 
     INTEGER nrow, ncol
-
-    ! REAL (KIND(0.d0)), ALLOCATABLE, DIMENSION (:,:) :: localW, UV
-    ! INTEGER, parameter :: sigma = 30
-    ! REAL (KIND(0.d0)) d, maxUV
 
     WRITE ( *, '(a)' ) ' '
     WRITE ( *, '(a)' ) '  PGMA_READ reads an ASCII PGM file.'
@@ -70,8 +65,7 @@ PROGRAM test
   CHARACTER ( len = 80 ) filename
   ! INTEGER (kind = 4) ierror
 
-  filename = 'img_ascii.pgm'
-  ! filename = 'feep.pgm'
+  filename = 'img.pgm'          ! Must be ASCII image
 
   CALL read ( filename, A, row, col, max )
 

@@ -67,6 +67,14 @@ $(FACES): $(CONVERT)
 	@echo -en $(INFO) $(WHITE)"Extract Faces...\n"$(CLOSE); unzip -q $(TMPDIR)/att_faces.zip -d $(TMPDIR)
 	@echo -en $(WORK) $(WHITE)"Converting Faces " $(CLOSE); ./$(CONVERT_script) $(TMPDIR) $(FACE_DIR)
 	@echo -e  "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
-	@echo -en $(INFO) $(WHITE)"Clean up" $(CLOSE); rm -r $(TMPDIR)
+	@echo -en $(INFO) $(WHITE)"Clean up" $(CLOSE); rm -r $(TMPDIR); cp $(FACE_DIR)/97.pgm img.pgm
 	@echo -e "\t\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
 
+TEX_SOURCE=paper/*.tex
+TEX_MAKER=paper/Makefile
+
+tex: $(TEX_SOURCE) $(TEX_MAKER)
+	@echo -n ; cd paper/ && make
+
+pdf: $(TEX_SOURCE) $(TEX_MAKER)
+	@echo -n ; cd paper/ && make open
