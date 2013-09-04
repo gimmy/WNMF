@@ -91,7 +91,7 @@ Di default il programma si occupa dell'approssimazione di più immagini simultan
 È possibile cambiare questo comportamento compilando nel \texttt{Makefile} la subroutine \texttt{read.f90} al posto di \texttt{wnmf.f90} (vedi \ref{makefile}).
 
 \paragraph{Conversione}\label{paragr:conversione}
-Le immagini, per poter applicare l'algoritmo, sono state convertite dal formato RAW in ASCII e rinumerate da $1$ a $400$ per un più semplice recupero delle stesse. Per la conversione delle immagini è stata usata la libreria \texttt{PGMA TO PGMB} (in \texttt{C++}) [vedi \ref{itm:A2B}].
+Le immagini, per poter applicare l'algoritmo, vengono convertite dal formato RAW in ASCII e rinumerate da $1$ a $400$ per un più semplice recupero delle stesse. Per la conversione delle immagini è stata usata la libreria \texttt{PGMA TO PGMB} (in \texttt{C++}) [vedi \ref{itm:A2B}].
 
 Le immagini vengono lette e convertite in ``vector face'' (``vettori faccia''), quindi salvati come vettori colonna di una matrice $A$. Viene contemporaneamente creata una matrice \emph{locale} dei pesi $localW$ (per ogni immagine letta), i cui elementi sono dati, come in \ref{W}, da:
 
@@ -100,12 +100,11 @@ Le immagini vengono lette e convertite in ``vector face'' (``vettori faccia''), 
 Anche questa matrice viene salvata come ``vettore peso'' nella matrice dei pesi $W$ (che risulta quindi dello stesso ordine di $A$).
 
 \paragraph{Iterazioni}
-Fissato un numero massimo di passi e la precisione massima si applicano le regole in \ref{updaterules} alle matrici $U$ e $V$. Viene considerato un passo del programma l'insieme degli ultimi due punti dell'algoritmo.\\
-Il programma stamperà a video la divergenza KL e il massimo della matrice $UV$ ad ogni aggiornamento (due volte per passo).
+Fissato un numero massimo di passi e la precisione massima si applicano le regole in \ref{updaterules} alle matrici $U$ e $V$. I punti a) e b)  dell'algoritmo vengono considerato come un passo del programma, il quale stamperà a video la divergenza KL e il massimo della matrice $UV$ ad ogni aggiornamento (due volte per passo).
 
 \paragraph{Stampa}
 Raggiunta la precisione richiesta o superato il numero massimo di iterazioni, la matrice $A$ e la fattorizzazione ottenuta vengono stampate sui file \texttt{A.pgm} e \texttt{UV.pgm}.
-Per il confronto viene eseguita un'ulteriore fattorizzazione senza pesi (con gli elementi della matrice dei pesi fissati a $1$).
+Per il confronto viene eseguita un'ulteriore fattorizzazione senza pesi (cioè con gli elementi della matrice dei pesi fissati a $1$).
 
 \paragraph{Librerie}
 Per leggere e scrivere i file PGM è stata utilizzata la libreria \texttt{PGMA IO} (per Fortran90) [vedi \ref{itm:IO}].
@@ -165,7 +164,7 @@ Fissato il numero di iterazioni vengono confrontate le divergenze ottenute usand
 \end{center}
 
 \subsection{Immagini}
-Accostamenti di immagini approssimate (con e senza pesi) con l'immagine originale:
+Accostamenti di immagini approssimate (con e senza pesi) e l'immagine originale:
 
 \begin{figure}[h]
   \centering
