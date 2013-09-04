@@ -65,4 +65,3 @@ $(FACES): $(CONVERT)
 	@echo $(WORK) $(WHITE)"Converting Faces " $(CLOSE); ./$(CONVERT_script) $(TMPDIR) $(FACE_DIR)
 	@echo $(INFO) $(WHITE)"Clean up" $(CLOSE); rm -r $(TMPDIR); cp $(FACE_DIR)/97.pgm img.pgm
 
-
