@@ -1,8 +1,8 @@
 CC= gfortran
-# CFLAGS= -c
-CFLAGS= -c -O0 -g -fbounds-check	# for debug
-LDFLAGS= -llapack
-SOURCE=pgma_io.f90 createA.f90 createV.f90 factor.f90 inverse.f90 print.f90 wnmf.f90 # read.f90
+CFLAGS= -c
+# CFLAGS= -c -O0 -g -fbounds-check	# for debug
+#LDFLAGS= -llapack
+SOURCE=pgma_io.f90 createA.f90 createV.f90 factor.f90 inverse.f90 print.f90 wnmf.f90  # read.f90
 OBJECTS= $(SOURCE:.f90=.o)
 EXECUTABLE=PGM
 TMPFILES= *~ a.out *.o
@@ -29,52 +29,40 @@ WORK=$(GREEN)"::"$(CLOSE)
 INFO=$(GREEN)" >"$(CLOSE)
 
 all: $(EXECUTABLE)
-	@echo -e $(INFO)$(CLOSE) $(WHITE)"Compiled"$(CLOSE)
+	@echo $(INFO)$(CLOSE) $(WHITE)"Compiled"$(CLOSE)
 
 $(EXECUTABLE): $(OBJECTS)
-	@echo -en $(WORK) $(WHITE)"Linking..."$(CLOSE)"\t"; $(CC) $(LDFLAGS) $(OBJECTS) -o $@
-	@echo -en  "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
+	@echo $(WORK) $(WHITE)"Linking..."$(CLOSE)"\t"; $(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 %.o: %.f90
-	@echo -en $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(CC) $(CFLAGS) $< -o $@
-	@echo -e "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
+	@echo $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(CC) $(CFLAGS) $< -o $@
 clean:
-	@echo -e $(WORK) $(WHITE)"Clean useless files"$(CLOSE)
+	@echo $(WORK) $(WHITE)"Clean useless files"$(CLOSE)
 	@rm -f $(TMPFILES) $(OBJECTS) $(EXECUTABLE)
 cclean:
-	@echo -e $(WORK) $(WHITE)"Clean all useless files and directories"$(CLOSE)
+	@echo $(WORK) $(WHITE)"Clean all useless files and directories"$(CLOSE)
 	@rm -f $(CONVERT) $(TMPFILES) $(OBJECTS) $(EXECUTABLE)
 	@rm -rf $(TMPDIR) $(FACE_DIR)
 
 run: $(EXECUTABLE)
-	@echo -e $(INFO) $(WHITE)"Run" $< $(CLOSE)
+	@echo $(INFO) $(WHITE)"Run" $< $(CLOSE)
 	@./$<
 
 whole: $(FACES) $(EXECUTABLE)
-	@echo -e $(INFO)$(CLOSE) $(WHITE)"Ready"$(CLOSE)
+	@echo $(INFO)$(CLOSE) $(WHITE)"Ready"$(CLOSE)
 
 $(CONVERT): $(CONVERT_PATH)$(SOURCE_CONVERT)
-	@echo -en $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(CC_CONVERT) $< -o $@
-	@echo -e "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
+	@echo $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(CC_CONVERT) $< -o $@
 
 faces: $(FACES)
-	@echo -e $(INFO)$(CLOSE) $(WHITE)"Faces are in "$(FACE_DIR)"/ directory" $(CLOSE)
+	@echo $(INFO)$(CLOSE) $(WHITE)"Faces are in "$(FACE_DIR)"/ directory" $(CLOSE)
 
 $(FACES): $(CONVERT)
 	@mkdir $(FACE_DIR) $(TMPDIR)
-	@echo -en $(INFO) $(WHITE)"Download Faces...\n"$(CLOSE); 
+	@echo $(INFO) $(WHITE)"Download Faces..."$(CLOSE); 
 	@curl -L# $(LINK) > $(TMPDIR)/att_faces.zip
-	@echo -en $(INFO) $(WHITE)"Extract Faces...\n"$(CLOSE); unzip -q $(TMPDIR)/att_faces.zip -d $(TMPDIR)
-	@echo -en $(WORK) $(WHITE)"Converting Faces " $(CLOSE); ./$(CONVERT_script) $(TMPDIR) $(FACE_DIR)
-	@echo -e  "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
-	@echo -en $(INFO) $(WHITE)"Clean up" $(CLOSE); rm -r $(TMPDIR); cp $(FACE_DIR)/97.pgm img.pgm
-	@echo -e "\t\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
+	@echo $(INFO) $(WHITE)"Extract Faces..."$(CLOSE); unzip -q $(TMPDIR)/att_faces.zip -d $(TMPDIR)
+	@echo $(WORK) $(WHITE)"Converting Faces " $(CLOSE); ./$(CONVERT_script) $(TMPDIR) $(FACE_DIR)
+	@echo $(INFO) $(WHITE)"Clean up" $(CLOSE); rm -r $(TMPDIR); cp $(FACE_DIR)/97.pgm img.pgm
 
-TEX_SOURCE=paper/*.tex
-TEX_MAKER=paper/Makefile
 
-tex: $(TEX_SOURCE) $(TEX_MAKER)
-	@echo -n ; cd paper/ && make
-
-pdf: $(TEX_SOURCE) $(TEX_MAKER)
-	@echo -n ; cd paper/ && make open
