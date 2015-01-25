@@ -19,24 +19,24 @@ INFO=$(GREEN)" >"$(CLOSE)
 
 
 all: $(FINALPDF)
-	@echo -e $(INFO) $(WHITE)"Compiled"$(CLOSE)
+	@echo  $(INFO) $(WHITE)"Compiled"$(CLOSE)
 
 $(FINALPDF): $(AUX_SOURCE) $(SOURCE)
-	@echo -en $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(LATEX) $(MAIN_TEX_SOURCE) 2>&1 > /dev/null
-	@echo -e "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
+	@echo -n $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(LATEX) $(MAIN_TEX_SOURCE) 2>&1 > /dev/null
+	@echo  "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
 
 $(AUX_SOURCE): $(MAIN_TEX_SOURCE) # $(SOURCE)
-	@echo -en $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(LATEX) $(MAIN_TEX_SOURCE) 2>&1 > /dev/null
-	@echo -e "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
+	@echo -n $(WORK) $(WHITE)"Compiling" $@ $(CLOSE); $(LATEX) $(MAIN_TEX_SOURCE) 2>&1 > /dev/null
+	@echo  "\t"$(GREEN)[$(CLOSE)$(WHITE)"Done"$(CLOSE)$(GREEN)]$(CLOSE)
 
 clean:
-	@echo -e $(WORK) $(WHITE)"Clean useless files"$(CLOSE)
+	@echo  $(WORK) $(WHITE)"Clean useless files"$(CLOSE)
 	@rm -f $(FINALPDF) $(TEMPFILES)
 
 erase:
-	@echo -e $(WORK) $(WHITE)"Erase useless & aux files"$(CLOSE)
+	@echo  $(WORK) $(WHITE)"Erase useless & aux files"$(CLOSE)
 	@rm -f $(FINALPDF) $(TEMPFILES) $(AUX_SOURCE)
 
 open: $(FINALPDF)
-	@echo -e $(INFO) $(WHITE)"Apro $(FINALPDF)"$(CLOSE)
+	@echo  $(INFO) $(WHITE)"Apro $(FINALPDF)"$(CLOSE)
 	@xdg-open $(FINALPDF)
