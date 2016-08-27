@@ -1,0 +1,6 @@
+*.o 
+paper/*.aux
+paper/*.log
+paper/*.pdf
+paper/*.out
+paper/img/*
